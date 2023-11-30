@@ -1,0 +1,22 @@
+Model Name: model1_ANN.keras
+Dataset Path: /Users/ak/PycharmProjects/PARSEC_OPT/RESOURCES/fitness/NACA6408.csv
+Size of Dataset: 164
+Train Size: 131
+Test Size: 33
+Columns of Dataset: yU_1, yU_2, yU_3, yU_4, yU_5, yU_6, yU_7, yU_8, yU_9, yU_10, yL_1, yL_2, yL_3, yL_4, yL_5, yL_6, yL_7, yL_8, yL_9, yL_10, ReynoldsNumber, MachNumber, alpha, Cl, Cd, Cm
+Target Columns: Cl, Cd, Cm
+Feature Columns: yU_1, yU_2, yU_3, yU_4, yU_5, yU_6, yU_7, yU_8, yU_9, yU_10, yL_1, yL_2, yL_3, yL_4, yL_5, yL_6, yL_7, yL_8, yL_9, yL_10, ReynoldsNumber, MachNumber, alpha
+MSE for each target: 0.10104837847029255, 0.1859602528428152, 0.148933347232171
+Description: This is Model 1.
+
+Model Name: model1_ANN.keras
+Dataset Path: /Users/ak/PycharmProjects/PARSEC_OPT/RESOURCES/fitness/NACA6408.csv
+Size of Dataset: 164
+Train Size: 131
+Test Size: 33
+Columns of Dataset: yU_1, yU_2, yU_3, yU_4, yU_5, yU_6, yU_7, yU_8, yU_9, yU_10, yL_1, yL_2, yL_3, yL_4, yL_5, yL_6, yL_7, yL_8, yL_9, yL_10, ReynoldsNumber, MachNumber, alpha, Cl, Cd, Cm
+Target Columns: Cl, Cd, Cm
+Feature Columns: yU_1, yU_2, yU_3, yU_4, yU_5, yU_6, yU_7, yU_8, yU_9, yU_10, yL_1, yL_2, yL_3, yL_4, yL_5, yL_6, yL_7, yL_8, yL_9, yL_10, ReynoldsNumber, MachNumber, alpha
+MSE for each target: 0.058650483616659296, 0.5128068991631781, 0.04196667663111985
+Description: This is Model 1.
+

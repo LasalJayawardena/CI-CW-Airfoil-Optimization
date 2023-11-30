@@ -1,0 +1,22 @@
+Comments - ak
+
+1.the data set NACA6408.csv consist of  array obtained had Ns × (2N + 6) dimensions, where Ns is the number of row-wise
+ samples. The first N columns are comprised of y-coordinates of the upper surface at fixed x locations and the
+ next N columns consist of y-coordinates of the lower surface at the same x locations. The last six columns consist
+ of AoA, Reynold and Mach number, CL, CD and Cm values.
+
+2. Reynold and Mach number tend to be pre-defined when choosing an airfoil. Define any recommended Reynold and
+Mach number in the internet and select any AoA between 0 - 15 degrees
+
+3.sample script to the regression model to predict CL,CD,CM values are added in Model1_ANN.py in SCRIPTS folder
+
+4. important details about the model needed to be added in the models_log.txt
+
+Todo
+1. template for the optimization needed to be added. ✅
+
+2. make a new log file to save the important details about the optimization algorithm to see how it is working.
+ex: csv to auto write predicted CL, CM, CD (later on can be used to compair methods) ,
+population selection, any other information.
+
+3. different mutation ,crossover,selection algorithms needed to be added as functions in the respective python file. ✅
