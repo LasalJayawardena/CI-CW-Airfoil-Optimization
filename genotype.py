@@ -1,53 +1,20 @@
+from constraints import Parameter, get_valid_range
 import random
 
-# parameter ranges = {
-#     'rLE': from 0.0085 till 0.0126,
-#     'Xup': from 0.41 till 0.46,
-#     'Yup': from 0.11 till 0.13,
-#     'YXXup': from -0.9 till -0.7,
-#     'Xlow': from 0.20 till 0.26,
-#     'Ylow': from -0.023 till -0.015,
-#     'YXXlow': from 0.05 till 0.20,
-#     'yTE': from -0.006 till -0.003,
-#     'deltaYTE': from 0.0025 till 0.0050,
-#     'alphaTE': from 7.0 till 10.0,
-#     'betaTE': from 10.0 till 14.0
-# }
 
 def generate_random_airfoil_parameters() -> dict:
     """
-    Generates random airfoil parameters within specified ranges.
+    Generates random airfoil parameters based on predefined ranges.
+
+    This function creates a dictionary of airfoil parameters where each parameter is randomly
+    generated within its valid range as defined in the 'Parameter' enum from the 'constraints.py' module.
 
     Returns:
-    - dict: A dictionary containing randomly generated airfoil parameters:
-        - 'rLE': Leading edge radius within the range of 0.0085 to 0.0126.
-        - 'Xup': Upper crest abscissa within the range of 0.41 to 0.46.
-        - 'Yup': Upper crest ordinate within the range of 0.11 to 0.13.
-        - 'YXXup': Upper crest curvature within the range of -0.9 to -0.7.
-        - 'Xlow': Lower crest abscissa within the range of 0.20 to 0.26.
-        - 'Ylow': Lower crest ordinate within the range of -0.023 to -0.015.
-        - 'YXXlow': Lower crest curvature within the range of 0.05 to 0.20.
-        - 'yTE': Trailing edge ordinate within the range of -0.006 to -0.003.
-        - 'deltaYTE': Trailing edge thickness within the range of 0.0025 to 0.0050.
-        - 'alphaTE': Trailing edge direction angle within the range of 7.0 to 10.0.
-        - 'betaTE': Trailing edge wedge angle within the range of 10.0 to 14.0.
+    - dict: A dictionary containing randomly generated airfoil parameters with their names as keys.
+            The parameters include 'rLE', 'Xup', 'Yup', 'YXXup', 'Xlow', 'Ylow', 'YXXlow', 'yTE', 'deltaYTE', 'alphaTE', 'betaTE'.
     """
-
-    parameters = {
-        'rLE': random.uniform(0.0085, 0.0126),
-        'Xup': random.uniform(0.41, 0.46),
-        'Yup': random.uniform(0.11, 0.13),
-        'YXXup': random.uniform(-0.9, -0.7),
-        'Xlow': random.uniform(0.20, 0.26),
-        'Ylow': random.uniform(-0.023, -0.015),
-        'YXXlow': random.uniform(0.05, 0.20),
-        'yTE': random.uniform(-0.006, -0.003),
-        'deltaYTE': random.uniform(0.0025, 0.0050),
-        'alphaTE': random.uniform(7.0, 10.0),
-        'betaTE': random.uniform(10.0, 14.0)
-    }
+    parameters = {param.param_name: random.uniform(*param.valid_range) for param in Parameter}
     return parameters
-
 
 # # Test Generate Random Airfoil Parameters
 # random_parameters = generate_random_airfoil_parameters()  
@@ -82,31 +49,21 @@ def check_valid_genotype(genotype: list) -> bool:
     """
     Validates if the provided genotype (list of airfoil parameters) is within specified ranges.
 
+    This function checks each parameter in the genotype against its valid range defined in the 'Parameter' enum
+    from the 'constraints.py' module. The genotype is a list of parameter values in the order defined by the 'Parameter' enum.
+
     Parameters:
-    - genotype (list): A list representing a genotype of airfoil parameters in the following order:
-        [rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE]
+    - genotype (list): A list representing a genotype of airfoil parameters. The order of parameters in the list
+                       should align with the order in the 'Parameter' enum.
 
     Returns:
-    - bool: True if the genotype is valid (within specified ranges), otherwise False.
+    - bool: True if the genotype is valid (each parameter within its specified range), otherwise False.
     """
-    valid_ranges = {
-        'rLE': (0.0085, 0.0126),
-        'Xup': (0.41, 0.46),
-        'Yup': (0.11, 0.13),
-        'YXXup': (-0.9, -0.7),
-        'Xlow': (0.20, 0.26),
-        'Ylow': (-0.023, -0.015),
-        'YXXlow': (0.05, 0.20),
-        'yTE': (-0.006, -0.003),
-        'deltaYTE': (0.0025, 0.0050),
-        'alphaTE': (7.0, 10.0),
-        'betaTE': (10.0, 14.0)
-    }
-
-    parameter_names = ['rLE', 'Xup', 'Yup', 'YXXup', 'Xlow', 'Ylow', 'YXXlow', 'yTE', 'deltaYTE', 'alphaTE', 'betaTE']
+    parameter_names = [param.param_name for param in Parameter]
 
     for name, value in zip(parameter_names, genotype):
-        if not (valid_ranges[name][0] <= value <= valid_ranges[name][1]):
+        min_val, max_val = get_valid_range(Parameter[name])
+        if not (min_val <= value <= max_val):
             return False
 
     return True
@@ -116,7 +73,7 @@ def check_valid_genotype(genotype: list) -> bool:
 # # Example parameters list (replace with your generated parameters list)
 # parameters_list = [0.02, 0.5, 0.1, 0.05, 0.3, -0.15, -0.03, 0.05, 0.02, 180, 270]
 # parameters_list = [0.2, 0.5, 0.1, 0.05, 0.3, -0.15, -0.03, 0.05, 0.02, 180, 270]
-# parameters_list = list(generate_random_airfoil_parameters().values())
+# # parameters_list = list(generate_random_airfoil_parameters().values())
 
 # # Checking if the parameters list forms a valid genotype
 # is_valid = check_valid_genotype(parameters_list)
@@ -145,14 +102,14 @@ def generate_population(population_size: int = 50) -> list:
     return population
 
 
-# Test Generate Population
-# Example population size
-population_size = 10
+# # Test Generate Population
+# # Example population size
+# population_size = 10
 
-# Generate population
-population = generate_population(population_size)
-print("Population:")
-print(population)
+# # Generate population
+# population = generate_population(population_size)
+# print("Population:")
+# print(population)
 
 
 
@@ -168,6 +125,39 @@ print(population)
 #  Old Code
 # ===================================================================================================================================================
 
+# def generate_random_airfoil_parameters() -> dict:
+#     """
+#     Generates random airfoil parameters within specified ranges.
+
+#     Returns:
+#     - dict: A dictionary containing randomly generated airfoil parameters:
+#         - 'rLE': Leading edge radius within the range of 0.0085 to 0.0126.
+#         - 'Xup': Upper crest abscissa within the range of 0.41 to 0.46.
+#         - 'Yup': Upper crest ordinate within the range of 0.11 to 0.13.
+#         - 'YXXup': Upper crest curvature within the range of -0.9 to -0.7.
+#         - 'Xlow': Lower crest abscissa within the range of 0.20 to 0.26.
+#         - 'Ylow': Lower crest ordinate within the range of -0.023 to -0.015.
+#         - 'YXXlow': Lower crest curvature within the range of 0.05 to 0.20.
+#         - 'yTE': Trailing edge ordinate within the range of -0.006 to -0.003.
+#         - 'deltaYTE': Trailing edge thickness within the range of 0.0025 to 0.0050.
+#         - 'alphaTE': Trailing edge direction angle within the range of 7.0 to 10.0.
+#         - 'betaTE': Trailing edge wedge angle within the range of 10.0 to 14.0.
+#     """
+
+#     parameters = {
+#         'rLE': random.uniform(0.0085, 0.0126),
+#         'Xup': random.uniform(0.41, 0.46),
+#         'Yup': random.uniform(0.11, 0.13),
+#         'YXXup': random.uniform(-0.9, -0.7),
+#         'Xlow': random.uniform(0.20, 0.26),
+#         'Ylow': random.uniform(-0.023, -0.015),
+#         'YXXlow': random.uniform(0.05, 0.20),
+#         'yTE': random.uniform(-0.006, -0.003),
+#         'deltaYTE': random.uniform(0.0025, 0.0050),
+#         'alphaTE': random.uniform(7.0, 10.0),
+#         'betaTE': random.uniform(10.0, 14.0)
+#     }
+#     return parameters
 
 # def generate_random_airfoil_parameters(chord_length: float = 1.0,
 #                                        min_curvature: float = -0.1,

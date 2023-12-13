@@ -8,6 +8,7 @@ DRAG_MODEL = tf.keras.models.load_model('./model.h5')
 REYNOLDS_NUMBER = 100000
 MACH_NUMBER = 0.1
 ATTACK_ON_ANGLE = -10
+# attack on angle from -10 to 10
 
 def test_model_inference_func() -> float: 
     
