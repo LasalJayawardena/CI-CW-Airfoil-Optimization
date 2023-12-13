@@ -34,7 +34,8 @@ class airfoil(object):
     def XCoordinates(self):
         # # Changed to 11 after discussion to accomodate model input
         # return np.linspace(0, 1, 11)
-        return np.linspace(0, 1, 10)
+        # return np.linspace(0, 1, 10)
+        return np.linspace(0, 1, 5)
 
     @property
     def YCoordinatesUpper(self):
