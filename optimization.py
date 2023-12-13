@@ -49,10 +49,6 @@ def optimization_strategy_one(current_gen: List[List[float]], population_size: i
     - List[List[float]]: The next generation of genotypes.
     """
 
-    chord_length = 1.0  # Placeholder chord length
-    min_curvature = -0.1  # Placeholder minimum curvature
-    max_curvature = 0.1  # Placeholder maximum curvature
-    max_thickness = 0.1  # Placeholder maximum thickness as a proportion of chord length
     mutation_rate = 0.1 # Placeholder mutation rate    
 
 
@@ -80,7 +76,7 @@ def optimization_strategy_one(current_gen: List[List[float]], population_size: i
     # Perform mutation (Uniform mutation)
     mutated_population = []
     for genotype in crossover_population:
-        mutated_genotype = uniform_mutation(genotype, chord_length, min_curvature, max_curvature, max_thickness, mutation_rate)
+        mutated_genotype = uniform_mutation(genotype, mutation_rate)
         mutated_population.append(mutated_genotype)
 
     # Check validity of genotypes
@@ -106,12 +102,12 @@ def simulation_strategy_one():
     # Run optimization_strategy_one for 100 Generations
 
     # Generate initial population
-    initial_population = generate_population(100)
+    initial_population = generate_population(10)
 
     # Run optimization_strategy_one for 100 generations
     current_generation = initial_population
-    for i in tqdm(list(range(50))):
-        current_generation = optimization_strategy_one(current_generation, 100)
+    for i in tqdm(list(range(2))):
+        current_generation = optimization_strategy_one(current_generation, 10)
 
     # Evaluate fitness of final generation
     fitness_scores = lift_coef_based_fitness_function_multi(current_generation)
