@@ -6,8 +6,8 @@ import tensorflow as tf
 from airfoil_Builder import Airfoil_Builder
 
 # Define Constants
-DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/model.h5')
-MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/min_max_scaler.pkl')
+DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/model15.h5')
+MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/min_max_scaler_15point.pkl')
 REYNOLDS_NUMBER = 20000
 MACH_NUMBER = 1
 ATTACK_ON_ANGLE = 5
@@ -64,13 +64,13 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
         return avg_cl_cd
 
 
-# # Test Fitnes Function
-# from genotype import generate_random_genotype
+# Test Fitnes Function
+from genotype import generate_random_genotype
 
-# genotype = generate_random_genotype()
-# print(genotype)
+genotype = generate_random_genotype()
+print(genotype)
 
-# print(lift_coef_based_fitness_function(genotype))
+print(lift_coef_based_fitness_function(genotype))
 
 def lift_coef_based_fitness_function_multi(genotypes: list, angle_range: tuple = (-10, 10), return_full_dict: bool = False) -> list:
     """
