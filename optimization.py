@@ -4,6 +4,7 @@ from fitness import lift_coef_based_fitness_function_multi, lift_coef_based_fitn
 from mutation import uniform_mutation
 from selection import roulette_wheel_selection
 from survivor_selection import truncation_selection
+from loggers import result_logger
 
 from typing import List
 import random
@@ -98,6 +99,24 @@ def optimization_strategy_one(current_gen: List[List[float]], population_size: i
 
 from tqdm import tqdm
 
+def log_genration_results(generation: List[List[float]], generation_number: int):
+    """
+    Logs the results of a generation to a text file.
+
+    Parameters:
+    - generation (List[List[float]]): The generation of genotypes.
+    - generation_number (int): The generation number.
+    """
+    root_folder = './RESULTS'
+    experiment_name = 'Experiment1'
+
+    fitness_results = lift_coef_based_fitness_function_multi(generation, return_full_dict=True)
+    fitness_values = [x[0] for x in fitness_results]
+    results_dicts = [x[1] for x in fitness_results]
+    result_logger(root_folder, experiment_name, generation_number, generation, fitness_values, results_dicts)
+    print(f"Generation {generation_number} results logged.")
+
+
 def simulation_strategy_one():
     # Run optimization_strategy_one for 100 Generations
 
@@ -108,6 +127,7 @@ def simulation_strategy_one():
     current_generation = initial_population
     for i in tqdm(list(range(2))):
         current_generation = optimization_strategy_one(current_generation, 10)
+        log_genration_results(current_generation, i+1)
 
     # Evaluate fitness of final generation
     fitness_scores = lift_coef_based_fitness_function_multi(current_generation)
