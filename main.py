@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 from ui import ChartWindow
 import matplotlib.pyplot as plt
+from optimization import simulation_strategy_one
 
 if __name__ == "__main__":
     a = QApplication(sys.argv)

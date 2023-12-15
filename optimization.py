@@ -119,7 +119,6 @@ def log_genration_results(generation: List[List[float]], generation_number: int)
 
 def simulation_strategy_one():
     # Run optimization_strategy_one for 100 Generations
-
     # Generate initial population
     initial_population = generate_population(10)
 

@@ -4,14 +4,16 @@ from PySide6.QtCharts import QLineSeries, QChart, QChartView,QXYSeries
 from PySide6.QtGui import QPainter
 from PySide6.QtCore import QPointF, Slot
 import pyqtgraph as pg
+
 from random import randint
+from tqdm import tqdm
 
 # AIRFOIL
 import airfoil_Builder
 PointConfig = QXYSeries.PointConfiguration
 
 # OPTIMIZATION
-from optimization import simulation_strategy_one
+import optimization
 
 class ChartWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -220,7 +222,22 @@ class ChartWindow(QMainWindow):
 
     @Slot()
     def _run_optimizer(self):
-        simulation_strategy_one()
+        # Run optimization_strategy_one for 100 Generations
+
+        # Generate initial population
+        initial_population = optimization.generate_population(10)
+
+        # Run optimization_strategy_one for 100 generations
+        current_generation = initial_population
+        for i in tqdm(list(range(2))):
+            current_generation = optimization.optimization_strategy_one(current_generation, 10)
+            optimization.log_genration_results(current_generation, i + 1)
+
+        # Evaluate fitness of final generation
+        fitness_scores = optimization.lift_coef_based_fitness_function_multi(current_generation)
+        return current_generation, fitness_scores
+        #simulation_strategy_one()
+
     def update_plot_data(self):
 
         self.x = self.x[1:]  # Remove the first y element.
