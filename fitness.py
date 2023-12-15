@@ -48,8 +48,8 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
     # Process the results
     results = {angle: tuple(pred) for angle, pred in zip(angles, predictions)}
     sum_cl, sum_cd = np.sum(predictions[:, 0]), np.sum(predictions[:, 1])
+    sum_cl_cd = np.sum(predictions[:, 0]) / np.sum(predictions[:, 1])
     angle_count = len(angles)
-
 
     # Calculate and return the average cl and cd
     avg_cl = sum_cl / angle_count
@@ -57,11 +57,16 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
 
     avg_cl_cd = avg_cl / avg_cd
 
-    # Check if the full dictionary is to be returned
     if return_full_dict:
-        return avg_cl_cd, results
+        return sum_cl_cd, results
     else:
-        return avg_cl_cd
+        return sum_cl_cd
+
+    # Check if the full dictionary is to be returned
+    # if return_full_dict:
+    #     return avg_cl_cd, results
+    # else:
+    #     return avg_cl_cd
 
 
 # # Test Fitnes Function

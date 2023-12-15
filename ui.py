@@ -54,7 +54,7 @@ class ChartWindow(QMainWindow):
         self.expanded_fitness_data_line1 = self._expanded_fitness_graph_Widget.plot(self.aoa, self.fitness[0], pen=pen)
 
         # Labels
-        fitness_parameters_label = QLabel("fitness parameters")
+        fitness_parameters_label = QLabel("--------------------------")
         reynold_label = QLabel("Reynold Number: ")
         mach_label = QLabel("Mach Number: ")
 
@@ -73,7 +73,8 @@ class ChartWindow(QMainWindow):
         # properties
         self._reynold_combobox = QComboBox()
         self._mach_combobox = QComboBox()
-        self.optimization_button = QPushButton("Optimize")
+        self._optimization_button = QPushButton("Optimize")
+        self._export_button = QPushButton("Export")
 
         self._rLE_lineedit = QLineEdit(str(self.rLE))
         self._Xup_lineedit = QLineEdit(str(self.Xup))
@@ -116,74 +117,85 @@ class ChartWindow(QMainWindow):
         self._alphaTE_lineedit.editingFinished.connect(self._set_custom_label)
         self._betaTE_lineedit.editingFinished.connect(self._set_custom_label)
 
-        self.optimization_button.clicked.connect(self._run_optimizer)
+        self._optimization_button.clicked.connect(self._run_optimizer)
+        self._export_button.clicked.connect(self._export_results)
+
         self.updateGeneration.connect(self._update_generation)
 
         # layout
+        airfoil_widget = QWidget(self)
+        airfoil_layout = QGridLayout(airfoil_widget)
+        #airfoil_layout.setColumnStretch(1, 1)
+
         chart_view = QChartView(self._chart)
         chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
+        airfoil_layout.addWidget(chart_view)
 
         control_widget = QWidget(self)
         control_layout = QGridLayout(control_widget)
-        control_layout.setColumnStretch(1, 1)
+        control_layout.setColumnStretch(0, 1)
 
-        control_layout.addWidget(fitness_parameters_label, 0, 0)
-        control_layout.addWidget(reynold_label, 1, 0)
-        control_layout.addWidget(self._reynold_combobox, 1, 1)
+        control_layout.addWidget(rLE_label, 1, 0)
+        control_layout.addWidget(self._rLE_lineedit, 1, 1)
+        control_layout.addWidget(Xup_label, 2, 0)
+        control_layout.addWidget(self._Xup_lineedit, 2, 1)
+        control_layout.addWidget(Yup_label, 3, 0)
+        control_layout.addWidget(self._Yup_lineedit, 3, 1)
+        control_layout.addWidget(YXXup_label, 4, 0)
+        control_layout.addWidget(self._YXXup_lineedit, 4, 1)
+        control_layout.addWidget(Xlow_label, 5, 0)
+        control_layout.addWidget(self._Xlow_lineedit, 5, 1)
+        control_layout.addWidget(Ylow_label, 6, 0)
+        control_layout.addWidget(self._Ylow_lineedit, 6, 1)
+        control_layout.addWidget(YXXlow_label, 7, 0)
+        control_layout.addWidget(self._YXXlow_lineedit, 7, 1)
+        control_layout.addWidget(yTE_label, 8, 0)
+        control_layout.addWidget(self._yTE_lineedit, 8, 1)
+        control_layout.addWidget(deltaYTE_label, 9, 0)
+        control_layout.addWidget(self._deltaYTE_lineedit, 9, 1)
+        control_layout.addWidget(alphaTE_label, 10, 0)
+        control_layout.addWidget(self._alphaTE_lineedit, 10, 1)
+        control_layout.addWidget(betaTE_label, 11, 0)
+        control_layout.addWidget(self._betaTE_lineedit, 11, 1)
 
-        control_layout.addWidget(mach_label, 2, 0)
-        control_layout.addWidget(self._mach_combobox, 2, 1)
+        control_layout.addWidget(fitness_parameters_label, 12, 0)
+        control_layout.addWidget(reynold_label, 13, 0)
+        control_layout.addWidget(self._reynold_combobox, 13, 1)
+        control_layout.addWidget(mach_label, 14, 0)
+        control_layout.addWidget(self._mach_combobox, 14, 1)
 
-        genotype_widget = QWidget(control_widget)
-        control_layout.addWidget(genotype_widget, 4, 0)
-        genotype_layout = QGridLayout(genotype_widget)
-        # genotype_layout.setColumnStretch(1, 1)
+        control_layout.addWidget(self._optimization_button,15,0)
+        control_layout.addWidget(self._export_button,15,1)
 
-        genotype_layout.addWidget(rLE_label, 1, 0)
-        genotype_layout.addWidget(self._rLE_lineedit, 1, 1)
-        genotype_layout.addWidget(Xup_label, 2, 0)
-        genotype_layout.addWidget(self._Xup_lineedit, 2, 1)
-        genotype_layout.addWidget(Yup_label, 3, 0)
-        genotype_layout.addWidget(self._Yup_lineedit, 3, 1)
-        genotype_layout.addWidget(YXXup_label, 4, 0)
-        genotype_layout.addWidget(self._YXXup_lineedit, 4, 1)
-        genotype_layout.addWidget(Xlow_label, 5, 0)
-        genotype_layout.addWidget(self._Xlow_lineedit, 5, 1)
-        genotype_layout.addWidget(Ylow_label, 6, 0)
-        genotype_layout.addWidget(self._Ylow_lineedit, 6, 1)
-        genotype_layout.addWidget(YXXlow_label, 7, 0)
-        genotype_layout.addWidget(self._YXXlow_lineedit, 7, 1)
-        genotype_layout.addWidget(yTE_label, 8, 0)
-        genotype_layout.addWidget(self._yTE_lineedit, 8, 1)
-        genotype_layout.addWidget(deltaYTE_label, 9, 0)
-        genotype_layout.addWidget(self._deltaYTE_lineedit, 9, 1)
-        genotype_layout.addWidget(alphaTE_label, 10, 0)
-        genotype_layout.addWidget(self._alphaTE_lineedit, 10, 1)
-        genotype_layout.addWidget(betaTE_label, 11, 0)
-        genotype_layout.addWidget(self._betaTE_lineedit, 11, 1)
+        charts_widget = QWidget(control_widget)
+        charts_layout = QGridLayout(charts_widget)
+        charts_layout.setColumnStretch(0, 1)
 
-        genotype_layout.addWidget(self.optimization_button,12,1)
+        charts_layout.addWidget(self._fitness_graph_Widget,0,0)
+        charts_layout.addWidget(self._expanded_fitness_graph_Widget,1,0)
 
         main_widget = QWidget(self)
         main_layout = QHBoxLayout(main_widget)
-        main_layout.addWidget(chart_view)
+        main_layout.addWidget(airfoil_widget)
         main_layout.addWidget(control_widget)
-        control_layout.addWidget(self._fitness_graph_Widget)
-        main_layout.addWidget(self._expanded_fitness_graph_Widget)
+        main_layout.addWidget(charts_widget)
         main_layout.setStretch(0, 1)
         self.setCentralWidget(main_widget)
 
     @Slot(int)
     def _set_reynold(self, index: int):
-        print(index)
+        print("optimizer has to be wrapped around a class to add the reynold feature")
 
     @Slot(int)
     def _set_mach(self, index: int):
-            print("index")
+            print("optimizer has to be wrapped around a class to add the mach feature")
 
     @Slot()
     def _set_custom_label(self):
-        print("...value changed")
+        print("These signals will not be used.")
+
+    def _export_results(self):
+        print("exported.")
 
     @Slot()
     def _run_optimizer(self):
@@ -306,16 +318,6 @@ class ChartWindow(QMainWindow):
     def extract_timestamp(self, file_name):
         time_stamp = file_name.split("_")[-1].split(".")[0]
         return int(time_stamp)
-
-    #
-    # def update_plot_data(self):
-    #     self.x = self.x[1:]  # Remove the first y element.
-    #     self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
-    #
-    #     self.y = self.y[1:]  # Remove the first
-    #     self.y.append(randint(0, 100))  # Add a new random value.
-    #
-    #     self.data_line.setData(self.x, self.y)  # Update the data.
 
 
 
