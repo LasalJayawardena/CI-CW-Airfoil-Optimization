@@ -6,8 +6,8 @@ import tensorflow as tf
 from airfoil_Builder import Airfoil_Builder
 
 # Define Constants
-DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/model.h5')
-MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/min_max_scaler.pkl')
+DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/model15.h5')
+MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/min_max_scaler_15point.pkl')
 REYNOLDS_NUMBER = 20000
 MACH_NUMBER = 1
 ATTACK_ON_ANGLE = 5
