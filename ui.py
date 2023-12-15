@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QLabel, QComboBox, QCheckBox, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, \
-    QGridLayout, QPushButton
+    QGridLayout, QPushButton, QFileDialog
 from PySide6.QtCharts import QLineSeries, QChart, QChartView,QXYSeries
 from PySide6.QtGui import QPainter
 from PySide6.QtCore import QPointF, Slot,QObject, Signal
@@ -10,6 +10,7 @@ import os
 from random import randint
 
 from tqdm import tqdm
+import shutil
 
 # AIRFOIL
 import airfoil_Builder
@@ -195,16 +196,38 @@ class ChartWindow(QMainWindow):
         print("These signals will not be used.")
 
     def _export_results(self):
-        print("exported.")
+        # Create a QFileDialog
+        file_dialog = QFileDialog()
+
+        # Open the file dialog and get the selected file path for export
+        export_path, _ = file_dialog.getSaveFileName(self, 'Export File', '', 'All Files (*)')
+
+        if export_path:
+            # Copy the existing file to the selected export path
+            source_path = './RESULTS/CurrentOptimizationCycle/optimization_cycle.txt'  # Replace with the actual path
+            shutil.copy(source_path, export_path)
+
+
 
     @Slot()
     def _run_optimizer(self):
         # Run optimization_strategy_one for 100 Generations
         # Generate initial population
+
+        # make speperate folder and open a file, inthe below fic add the current fie data to this file
+
+        # Specify the path of the new folder
+        folder_path = "./RESULTS/CurrentOptimizationCycle"
+
+        # Create the new folder if it doesn't exist
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
         initial_population = optimization.generate_population(10)
 
         # Run optimization_strategy_one for 100 generations
         current_generation = initial_population
+        optimization.log_genration_results(current_generation, 0)
         self.updateGeneration.emit()
         for i in tqdm(list(range(3))):
             current_generation = optimization.optimization_strategy_one(current_generation, 10)
@@ -217,7 +240,13 @@ class ChartWindow(QMainWindow):
 
     @Slot()
     def _update_generation(self):
-        folder_path = "/Users/ak/Desktop/4th year/computational intelligence/project/CI-CW-Airfoil-Optimization/RESULTS/Experiment1"
+        # Specify the file name and path within the new folder, This is for the export part
+        optimization_cycle_file_name = "optimization_cycle.txt"
+        optimization_cycle_file_path = os.path.join('./RESULTS/CurrentOptimizationCycle/', optimization_cycle_file_name)
+
+
+
+        folder_path = "./RESULTS/Experiment1"
         files = os.listdir(folder_path)
         text_files = [file for file in files if file.endswith(".txt")]
 
@@ -241,6 +270,65 @@ class ChartWindow(QMainWindow):
             genotype_array[0], genotype_array[1], genotype_array[2], genotype_array[3], genotype_array[4], \
                 genotype_array[5], \
                 genotype_array[6], genotype_array[7], genotype_array[8], genotype_array[9], genotype_array[10]
+        
+        ########################################### Lakindu ############################################
+
+        fitness_pattern = regex.compile(r"Fitness: ([\d.]+)")
+        fitness_match = fitness_pattern.search(content)
+        if fitness_match:
+            fitness_value = float(fitness_match.group(1))
+        print('\n\nGen Number: '+str(generation_number) +' , Fitness Value: '+str(fitness_value)+'\n\n')
+
+
+        lines_list = content.split('\n')
+        genotype_details_set_index = lines_list.index('Detailed Results for Each Genotype:')
+
+        # Lists to store x and y coordinates
+        cl_cd_ratio_list = []
+
+        # Regular expression to extract angle, cl, and cd values
+        pattern = regex.compile(r"  Angle (-?\d+): cl=(-?\d+\.\d+), cd=(-?\d+\.\d+), cm=(-?\d+\.\d+)")
+
+        # Iterate over each line in the input
+        for input_text in lines_list[genotype_details_set_index+2:genotype_details_set_index+2+21]:
+            # Match the pattern in the input text
+            match = pattern.match(input_text)
+
+            # If there is a match, extract values
+            if match:
+                angle = int(match.group(1))
+                cl = float(match.group(2))
+                cd = float(match.group(3))
+
+                # Calculate the ratio of Cl to Cd
+                if cd != 0:
+                    cl_cd_ratio = cl / cd
+                else:
+                    cl_cd_ratio = 0
+
+                # Append values to the lists
+                cl_cd_ratio_list.append(cl_cd_ratio)
+
+        print(cl_cd_ratio_list)
+
+
+
+        # below one is for the export part
+        # Create a new file in the specified path
+        if generation_number == 1:
+            with open(optimization_cycle_file_path, 'w') as file:
+                # You can write content to the file if needed
+                file.write(f'#######################################     Generation Number: {generation_number}     ##########################################\n{content}\n\n')
+        else:
+            with open(optimization_cycle_file_path, 'a') as file:
+                # You can write content to the file if needed
+                file.write(f'#######################################     Generation Number: {generation_number}     ##########################################\n{content}\n\n')
+
+
+
+        ######################################################################################################
+
+
         airfoil = airfoil_Builder.Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE,
                                                   betaTE)
         airfoil.build()
@@ -296,17 +384,17 @@ class ChartWindow(QMainWindow):
                              QPointF(xcoor[0], yCoorLower[0]),
                              QPointF(0, 0)])
 
-        highest_Fitness = 1
-        gen_number = 1
-        f = [1.9,2.3,2,2.5,2.9,3,3.3,3,5.5,5,6,6.7,6.8,5,4,4.9,4.5,3,3.9,1,1.5]
+        highest_Fitness = fitness_value
+        gen_number = generation_number
+        f = cl_cd_ratio_list
         self.fitness.append(f)
 
         self._chart.removeAllSeries()
         self._chart.addSeries(self._series)
 
-        self.gen_number.append(self.gen_number[-1]+gen_number)
+        self.gen_number.append(gen_number)
         print(self.gen_number)
-        self.highest_fitness.append(self.highest_fitness[-1]+highest_Fitness)
+        self.highest_fitness.append(highest_Fitness)
         print(self.highest_fitness)
         self.data_line.setData(self.highest_fitness, self.highest_fitness)  # Update the data.
         for i in range(len(self.fitness)):
