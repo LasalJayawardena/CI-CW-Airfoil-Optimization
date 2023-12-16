@@ -257,7 +257,6 @@ class ChartWindow(QMainWindow):
         optimization_cycle_file_path = os.path.join('./RESULTS/CurrentOptimizationCycle/', optimization_cycle_file_name)
 
 
-
         folder_path = "./RESULTS/Experiment1"
         files = os.listdir(folder_path)
         text_files = [file for file in files if file.endswith(".txt")]
@@ -291,7 +290,7 @@ class ChartWindow(QMainWindow):
             fitness_value = float(fitness_match.group(1))
         print('\n\nGen Number: '+str(generation_number) +' , Fitness Value: '+str(fitness_value)+'\n\n')
 
-
+        ## Getting the list of cl_cd ratios
         lines_list = content.split('\n')
         genotype_details_set_index = lines_list.index('Detailed Results for Each Genotype:')
 
