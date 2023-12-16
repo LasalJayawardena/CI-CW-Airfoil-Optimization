@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QLabel, QComboBox, QCheckBox, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, \
-    QGridLayout, QPushButton, QFileDialog
+    QGridLayout, QPushButton, QFileDialog, QInputDialog
 from PySide6.QtCharts import QLineSeries, QChart, QChartView,QXYSeries
 from PySide6.QtGui import QPainter
 from PySide6.QtCore import QPointF, Slot,QObject, Signal
@@ -186,10 +186,22 @@ class ChartWindow(QMainWindow):
     @Slot(int)
     def _set_reynold(self, index: int):
         print("optimizer has to be wrapped around a class to add the reynold feature")
+        # Get Reynolds number from user input
+        reynold = self._reynold_combobox.itemData(index)
+        print(f"Reynold Number set to: {reynold}")
+        # Write Reynolds number to a file
+        with open('./RESULTS/Reynold_and_Mach_Inputs/REYNOLD.txt', 'w') as reynold_file:
+            reynold_file.write(f'REYNOLD = {reynold}')
 
     @Slot(int)
     def _set_mach(self, index: int):
             print("optimizer has to be wrapped around a class to add the mach feature")
+            # Get Mach number from user input
+            mach = self._mach_combobox.itemData(index)
+            print(f"Mach Number set to: {mach}")
+            # Write Mach number to a file
+            with open('./RESULTS/Reynold_and_Mach_Inputs/MACH.txt', 'w') as mach_file:
+                mach_file.write(f'MACH = {mach}')
 
     @Slot()
     def _set_custom_label(self):
