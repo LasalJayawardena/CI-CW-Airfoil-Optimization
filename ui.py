@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QMainWindow, QLabel, QComboBox, QCheckBox, QLineEd
     QGridLayout, QPushButton, QFileDialog, QInputDialog
 from PySide6.QtCharts import QLineSeries, QChart, QChartView,QXYSeries
 from PySide6.QtGui import QPainter
-from PySide6.QtCore import QPointF, Slot,QObject, Signal
+from PySide6.QtCore import QPointF, Slot, QObject, Signal, QCoreApplication
 import pyqtgraph as pg
 
 import re as regex
@@ -23,36 +23,52 @@ class ChartWindow(QMainWindow):
     updateGeneration = Signal()
 
     # initial airfoil
-    rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE = 0.0147, 0.3015, 0.0599, -0.4360, 0.2996, -0.06, 0.4406, 0, 0, 0, 14.67
-    airfoil = airfoil_Builder.Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE)
-    airfoil.build()
-    xcoor = airfoil.XCoordinates
-    yCoorUpper = airfoil.YCoordinatesUpper
-    yCoorLower = airfoil.YCoordinatesLower
+
+    # xcoor = airfoil.XCoordinates
+    # yCoorUpper = airfoil.YCoordinatesUpper
+    # yCoorLower = airfoil.YCoordinatesLower
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Parsec Airfoil")
 
         # initialize parameters
-        xcoor = self.xcoor
-        yCoorUpper = self.yCoorUpper
-        yCoorLower = self.yCoorLower
+        self.rLE, self.Xup, self.Yup, self.YXXup, self.Xlow, self.Ylow, self.YXXlow, self.yTE, self.deltaYTE, self.alphaTE, self.betaTE = 0.0147, 0.3015, 0.0599, -0.4360, 0.2996, -0.06, 0.4406, 0, 0, 0, 14.67
+        airfoil = airfoil_Builder.Airfoil_Builder(self.rLE, self.Xup, self.Yup, self.YXXup, self.Xlow, self.Ylow, self.YXXlow, self.yTE, self.deltaYTE, self.alphaTE, self.betaTE, 100)
+        airfoil.build()
+
+        self.xcoor = airfoil.XCoordinates
+        self.yCoorUpper = airfoil.YCoordinatesUpper
+        self.yCoorLower = airfoil.YCoordinatesLower
+
         self.gen_number = [0]
         self.highest_fitness = [0]
 
         self.fitness = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
         self.aoa = [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10]
 
+        # initialize plot
         self._fitness_graph_Widget = pg.PlotWidget()
         self._fitness_graph_Widget.setBackground('w')
         pen = pg.mkPen(color=(255, 0, 0))
         self.data_line = self._fitness_graph_Widget.plot(self.gen_number, self.highest_fitness, pen=pen)
+        self._fitness_graph_Widget.setLabel('bottom', 'Generation Number')
+        self._fitness_graph_Widget.setLabel('left', 'Highest Fitness')
 
         self._expanded_fitness_graph_Widget = pg.PlotWidget()
         self._expanded_fitness_graph_Widget.setBackground('w')
         pen = pg.mkPen(color=(255, 0, 0))
         self.expanded_fitness_data_line1 = self._expanded_fitness_graph_Widget.plot(self.aoa, self.fitness[0], pen=pen)
+        self._expanded_fitness_graph_Widget.setLabel('bottom', 'Angle of Attack (AOA)')
+        self._expanded_fitness_graph_Widget.setLabel('left', 'Fitness Value')
+
+        self._airfoil_shape_graph_Widget = pg.PlotWidget()
+        self._airfoil_shape_graph_Widget.setBackground('w')
+        pen = pg.mkPen(color=(255, 0, 0))
+        self.airfoil_shape_graph_line_yUpper = self._airfoil_shape_graph_Widget.plot(self.xcoor, self.yCoorUpper, pen=pen)
+        self.airfoil_shape_graph_line_yLower = self._airfoil_shape_graph_Widget.plot(self.xcoor, self.yCoorLower, pen=pen)
+        self._airfoil_shape_graph_Widget.setLabel('bottom', 'X')
+        self._airfoil_shape_graph_Widget.setLabel('left', 'Y')
 
         # Labels
         fitness_parameters_label = QLabel("--------------------------")
@@ -89,12 +105,12 @@ class ChartWindow(QMainWindow):
         self._alphaTE_lineedit = QLineEdit(str(self.alphaTE))
         self._betaTE_lineedit = QLineEdit(str(self.betaTE))
 
-        self._chart = QChart()
-        self._series = QLineSeries()
-        self._series.setName("Airfoil")
-        self._series.setPointsVisible(True)
-        self._chart.addSeries(self._series)
-        self._chart.createDefaultAxes()
+        # self._chart = QChart()
+        # self._series = QLineSeries()
+        # self._series.setName("Airfoil")
+        # self._series.setPointsVisible(True)
+        # self._chart.addSeries(self._series)
+        # self._chart.createDefaultAxes()
 
         for re in [100000, 200000, 300000, 400000, 500000]:
             self._reynold_combobox.addItem(str(re), re)
@@ -126,11 +142,7 @@ class ChartWindow(QMainWindow):
         # layout
         airfoil_widget = QWidget(self)
         airfoil_layout = QGridLayout(airfoil_widget)
-        #airfoil_layout.setColumnStretch(1, 1)
-
-        chart_view = QChartView(self._chart)
-        chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        airfoil_layout.addWidget(chart_view)
+        airfoil_layout.addWidget(self._airfoil_shape_graph_Widget)
 
         control_widget = QWidget(self)
         control_layout = QGridLayout(control_widget)
@@ -159,16 +171,27 @@ class ChartWindow(QMainWindow):
         control_layout.addWidget(betaTE_label, 11, 0)
         control_layout.addWidget(self._betaTE_lineedit, 11, 1)
 
-        control_layout.addWidget(fitness_parameters_label, 12, 0)
-        control_layout.addWidget(reynold_label, 13, 0)
-        control_layout.addWidget(self._reynold_combobox, 13, 1)
-        control_layout.addWidget(mach_label, 14, 0)
-        control_layout.addWidget(self._mach_combobox, 14, 1)
+        optimize_control_widget = QWidget(self)
+        optimize_control_layout = QGridLayout(optimize_control_widget)
+        optimize_control_layout.setColumnStretch(0, 1)
 
-        control_layout.addWidget(self._optimization_button,15,0)
-        control_layout.addWidget(self._export_button,15,1)
+        optimize_control_layout.addWidget(fitness_parameters_label, 12, 0)
+        optimize_control_layout.addWidget(reynold_label, 13, 0)
+        optimize_control_layout.addWidget(self._reynold_combobox, 13, 1)
+        optimize_control_layout.addWidget(mach_label, 14, 0)
+        optimize_control_layout.addWidget(self._mach_combobox, 14, 1)
 
-        charts_widget = QWidget(control_widget)
+        optimize_control_layout.addWidget(self._optimization_button,15,0)
+        optimize_control_layout.addWidget(self._export_button,15,1)
+
+        parameter_widget = QWidget(self)
+        parameter_layout = QGridLayout(parameter_widget)
+        parameter_layout.addWidget(control_widget,0,0)
+        parameter_layout.addWidget(optimize_control_widget,0,1)
+
+        airfoil_layout.addWidget(parameter_widget,1,0)
+
+        charts_widget = QWidget(self)
         charts_layout = QGridLayout(charts_widget)
         charts_layout.setColumnStretch(0, 1)
 
@@ -178,7 +201,7 @@ class ChartWindow(QMainWindow):
         main_widget = QWidget(self)
         main_layout = QHBoxLayout(main_widget)
         main_layout.addWidget(airfoil_widget)
-        main_layout.addWidget(control_widget)
+        #main_layout.addWidget(control_widget)
         main_layout.addWidget(charts_widget)
         main_layout.setStretch(0, 1)
         self.setCentralWidget(main_widget)
@@ -186,76 +209,70 @@ class ChartWindow(QMainWindow):
     @Slot(int)
     def _set_reynold(self, index: int):
         print("optimizer has to be wrapped around a class to add the reynold feature")
-        # Get Reynolds number from user input
         reynold = self._reynold_combobox.itemData(index)
         print(f"Reynold Number set to: {reynold}")
-        # Write Reynolds number to a file
         with open('./RESULTS/Reynold_and_Mach_Inputs/REYNOLD.txt', 'w') as reynold_file:
-            reynold_file.write(f'REYNOLD = {reynold}')
+            reynold_file.write(f'{reynold}')
 
     @Slot(int)
     def _set_mach(self, index: int):
             print("optimizer has to be wrapped around a class to add the mach feature")
-            # Get Mach number from user input
             mach = self._mach_combobox.itemData(index)
             print(f"Mach Number set to: {mach}")
-            # Write Mach number to a file
             with open('./RESULTS/Reynold_and_Mach_Inputs/MACH.txt', 'w') as mach_file:
-                mach_file.write(f'MACH = {mach}')
+                mach_file.write(f'{mach}')
 
     @Slot()
     def _set_custom_label(self):
         print("These signals will not be used.")
 
     def _export_results(self):
-        # Create a QFileDialog
         file_dialog = QFileDialog()
-
-        # Open the file dialog and get the selected file path for export
         export_path, _ = file_dialog.getSaveFileName(self, 'Export File', '', 'All Files (*)')
-
         if export_path:
-            # Copy the existing file to the selected export path
             source_path = './RESULTS/CurrentOptimizationCycle/optimization_cycle.txt'  # Replace with the actual path
             shutil.copy(source_path, export_path)
 
-
-
     @Slot()
     def _run_optimizer(self):
+        # clear data
+        self.fitness = []
+        self.highest_fitness = []
+        self.gen_number = []
+
+        # clear plots
+        self._expanded_fitness_graph_Widget.clear()
+        self._fitness_graph_Widget.clear()
+
         # Run optimization_strategy_one for 100 Generations
         # Generate initial population
-
-        # make speperate folder and open a file, inthe below fic add the current fie data to this file
-
+        # make separate folder and open a file, inthe below fic add the current fie data to this file
         # Specify the path of the new folder
         folder_path = "./RESULTS/CurrentOptimizationCycle"
 
         # Create the new folder if it doesn't exist
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-
         initial_population = optimization.generate_population(10)
-
-        # Run optimization_strategy_one for 100 generations
         current_generation = initial_population
         optimization.log_genration_results(current_generation, 0)
         self.updateGeneration.emit()
-        for i in tqdm(list(range(3))):
+        for i in tqdm(list(range(20))):
             current_generation = optimization.optimization_strategy_one(current_generation, 10)
             optimization.log_genration_results(current_generation, i + 1)
             self.updateGeneration.emit()
 
         # Evaluate fitness of final generation
         fitness_scores = optimization.lift_coef_based_fitness_function_multi(current_generation)
-        return current_generation, fitness_scores
+        #return current_generation, fitness_scores
 
     @Slot()
     def _update_generation(self):
+        #self._airfoil_shape_graph_Widget.clear()
+
         # Specify the file name and path within the new folder, This is for the export part
         optimization_cycle_file_name = "optimization_cycle.txt"
         optimization_cycle_file_path = os.path.join('./RESULTS/CurrentOptimizationCycle/', optimization_cycle_file_name)
-
 
         folder_path = "./RESULTS/Experiment1"
         files = os.listdir(folder_path)
@@ -281,8 +298,6 @@ class ChartWindow(QMainWindow):
             genotype_array[0], genotype_array[1], genotype_array[2], genotype_array[3], genotype_array[4], \
                 genotype_array[5], \
                 genotype_array[6], genotype_array[7], genotype_array[8], genotype_array[9], genotype_array[10]
-        
-        ########################################### Lakindu ############################################
 
         fitness_pattern = regex.compile(r"Fitness: ([\d.]+)")
         fitness_match = fitness_pattern.search(content)
@@ -322,8 +337,6 @@ class ChartWindow(QMainWindow):
 
         print(cl_cd_ratio_list)
 
-
-
         # below one is for the export part
         # Create a new file in the specified path
         if generation_number == 1:
@@ -335,13 +348,8 @@ class ChartWindow(QMainWindow):
                 # You can write content to the file if needed
                 file.write(f'#######################################     Generation Number: {generation_number}     ##########################################\n{content}\n\n')
 
-
-
-        ######################################################################################################
-
-
         airfoil = airfoil_Builder.Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE,
-                                                  betaTE)
+                                                  betaTE,100)
         airfoil.build()
         xcoor = airfoil.XCoordinates
         yCoorUpper = airfoil.YCoordinatesUpper
@@ -359,59 +367,71 @@ class ChartWindow(QMainWindow):
         self._alphaTE_lineedit.setText(str(alphaTE))
         self._betaTE_lineedit.setText(str(betaTE))
 
-        self._series = QLineSeries()
-        self._series.append([QPointF(0, 0),
-                             QPointF(xcoor[0], yCoorUpper[0]),
-                             QPointF(xcoor[1], yCoorUpper[1]),
-                             QPointF(xcoor[2], yCoorUpper[2]),
-                             QPointF(xcoor[3], yCoorUpper[3]),
-                             QPointF(xcoor[4], yCoorUpper[4]),
-                             QPointF(xcoor[5],yCoorUpper[5]),
-                             QPointF(xcoor[6],yCoorUpper[6]),
-                             QPointF(xcoor[7],yCoorUpper[7]),
-                             QPointF(xcoor[8],yCoorUpper[8]),
-                             QPointF(xcoor[9],yCoorUpper[9]),
-                             QPointF(xcoor[10], yCoorUpper[10]),
-                             QPointF(xcoor[11], yCoorUpper[11]),
-                             QPointF(xcoor[12], yCoorUpper[12]),
-                             QPointF(xcoor[13], yCoorUpper[13]),
-                             QPointF(xcoor[14], yCoorUpper[14]),
-                             QPointF(1, 0),
+        # self._series = QLineSeries()
+        # self._series.append([QPointF(0, 0),
+        #                      QPointF(xcoor[0], yCoorUpper[0]),
+        #                      QPointF(xcoor[1], yCoorUpper[1]),
+        #                      QPointF(xcoor[2], yCoorUpper[2]),
+        #                      QPointF(xcoor[3], yCoorUpper[3]),
+        #                      QPointF(xcoor[4], yCoorUpper[4]),
+        #                      QPointF(xcoor[5],yCoorUpper[5]),
+        #                      QPointF(xcoor[6],yCoorUpper[6]),
+        #                      QPointF(xcoor[7],yCoorUpper[7]),
+        #                      QPointF(xcoor[8],yCoorUpper[8]),
+        #                      QPointF(xcoor[9],yCoorUpper[9]),
+        #                      QPointF(xcoor[10], yCoorUpper[10]),
+        #                      QPointF(xcoor[11], yCoorUpper[11]),
+        #                      QPointF(xcoor[12], yCoorUpper[12]),
+        #                      QPointF(xcoor[13], yCoorUpper[13]),
+        #                      QPointF(xcoor[14], yCoorUpper[14]),
+        #                      QPointF(1, 0),
+        #
+        #                      QPointF(xcoor[14], yCoorLower[14]),
+        #                      QPointF(xcoor[13], yCoorLower[13]),
+        #                      QPointF(xcoor[12], yCoorLower[12]),
+        #                      QPointF(xcoor[11], yCoorLower[11]),
+        #                      QPointF(xcoor[10], yCoorLower[10]),
+        #                      QPointF(xcoor[9], yCoorLower[9]),
+        #                      QPointF(xcoor[8], yCoorLower[8]),
+        #                      QPointF(xcoor[7], yCoorLower[7]),
+        #                      QPointF(xcoor[6], yCoorLower[6]),
+        #                      QPointF(xcoor[5], yCoorLower[5]),
+        #                      QPointF(xcoor[4], yCoorLower[4]),
+        #                      QPointF(xcoor[3], yCoorLower[3]),
+        #                      QPointF(xcoor[2], yCoorLower[2]),
+        #                      QPointF(xcoor[1], yCoorLower[1]),
+        #                      QPointF(xcoor[0], yCoorLower[0]),
+        #                      QPointF(0, 0)])
 
-                             QPointF(xcoor[14], yCoorLower[14]),
-                             QPointF(xcoor[13], yCoorLower[13]),
-                             QPointF(xcoor[12], yCoorLower[12]),
-                             QPointF(xcoor[11], yCoorLower[11]),
-                             QPointF(xcoor[10], yCoorLower[10]),
-                             QPointF(xcoor[9], yCoorLower[9]),
-                             QPointF(xcoor[8], yCoorLower[8]),
-                             QPointF(xcoor[7], yCoorLower[7]),
-                             QPointF(xcoor[6], yCoorLower[6]),
-                             QPointF(xcoor[5], yCoorLower[5]),
-                             QPointF(xcoor[4], yCoorLower[4]),
-                             QPointF(xcoor[3], yCoorLower[3]),
-                             QPointF(xcoor[2], yCoorLower[2]),
-                             QPointF(xcoor[1], yCoorLower[1]),
-                             QPointF(xcoor[0], yCoorLower[0]),
-                             QPointF(0, 0)])
-
-        highest_Fitness = fitness_value
-        gen_number = generation_number
+        # update properties
+        #gen_number = generation_number
         f = cl_cd_ratio_list
         self.fitness.append(f)
 
-        self._chart.removeAllSeries()
-        self._chart.addSeries(self._series)
+        # update airfoil chart.
+        # self._chart.removeAllSeries()
+        # self._chart.addSeries(self._series)
 
-        self.gen_number.append(gen_number)
+        # update the airfoil plot
+        pen1 = pg.mkPen(color=(255, 0, 0))
+        self.airfoil_data_line_yUpper = self._airfoil_shape_graph_Widget.plot(airfoil.XCoordinates, airfoil.YCoordinatesUpper, pen=pen1)
+        self.airfoil_data_line_yLower = self._airfoil_shape_graph_Widget.plot(airfoil.XCoordinates, airfoil.YCoordinatesLower, pen=pen1)
+
+        # update the highest fitness value got in each fitness value
+        self.gen_number.append(generation_number)
         print(self.gen_number)
-        self.highest_fitness.append(highest_Fitness)
+        self.highest_fitness.append(fitness_value)
         print(self.highest_fitness)
-        self.data_line.setData(self.highest_fitness, self.highest_fitness)  # Update the data.
+        pen2 = pg.mkPen(color=(255, 0, 0))
+        self.data_line = self._fitness_graph_Widget.plot(self.gen_number, self.highest_fitness, pen=pen2)
+
+        # cl,cd values respect to AOA for each generation.
         for i in range(len(self.fitness)):
             pen = pg.mkPen(color=(255, 0, 0))
             self.expanded_fitness_data_line2 = self._expanded_fitness_graph_Widget.plot( self.aoa,self.fitness[i] , pen=pen)
 
+        # force to update the pending actions
+        QCoreApplication.processEvents()
         print("a new generation started.")
 
     def extract_timestamp(self, file_name):

@@ -30,7 +30,7 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
     rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE = genotype
 
     # Create an airfoil object
-    airfoil = Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE)
+    airfoil = Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE,15)
     airfoil.build()
     xcoor = airfoil.XCoordinates
     yCoorUpper = airfoil.YCoordinatesUpper

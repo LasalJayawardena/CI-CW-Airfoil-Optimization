@@ -11,26 +11,6 @@ if __name__ == "__main__":
     main_window.show()
     sys.exit(a.exec())
 
-# # Create a scatter plot of the points
-# plt.scatter(xcoor, yCoorUpper, label="Points", color="blue", marker="o")
-#
-# # Add labels and title
-# plt.xlabel("X-Axis")
-# plt.ylabel("Y-Axis")
-# plt.title("Scatter Plot of Points")
-#
-# # Add a legend (if needed)
-# plt.legend()
-#
-# # Show the plot
-# plt.show()
-# print(xcoor)
-# print(yCoorUpper)
-# print(yCoorLower)
-#
-# print(len(yCoorUpper))
-# print(len(yCoorLower))
-
 # # Now you can use train_and_save_model in your main.py
 # train_and_save_model(
 #     'model1_ANN.keras',

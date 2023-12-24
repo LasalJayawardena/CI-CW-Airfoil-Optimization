@@ -14,7 +14,7 @@ import math_Tools as tl
 # @param alphaTE : (trailing edge direction)
 # @param betaTE : (trailing edge wedge angle)
 class airfoil(object):
-    def __init__(self, rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE):
+    def __init__(self, rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE, NoCoor):
         self.rLE = rLE
         self.Xup = Xup
         self.Yup = Yup
@@ -26,6 +26,7 @@ class airfoil(object):
         self.deltaYTE = deltaYTE
         self.alphaTE = alphaTE
         self.betaTE = betaTE
+        self.numCoor = NoCoor
 
         self.AUp = []
         self.ALow = []
@@ -36,7 +37,7 @@ class airfoil(object):
         # return np.linspace(0, 1, 11)
         # return np.linspace(0, 1, 10)
         # return np.linspace(0, 1, 5)
-        return np.linspace(0, 1, 15)
+        return np.linspace(0, 1, self.numCoor)
 
     @property
     def YCoordinatesUpper(self):
@@ -121,7 +122,7 @@ class airfoil(object):
         # return AUp, ALow
 
 
-def Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE):
-    Airfoil = airfoil(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE)
+def Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE,NoCoor):
+    Airfoil = airfoil(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE,NoCoor)
     return Airfoil
 
