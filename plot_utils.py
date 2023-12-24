@@ -32,17 +32,30 @@ def plot_airfoil(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaT
 
 if __name__ == '__main__':
     # Example parameters (replace these with your desired values)
-    rLE = 0.0147
-    Xup = 0.3015
-    Yup = 0.0599
-    YXXup = -0.4360
-    Xlow = 0.2996
-    Ylow = -0.06
-    YXXlow = 0.4406
-    yTE = 0
-    deltaYTE = 0
-    alphaTE = 0
-    betaTE = 14.67
+    # rLE = 0.0147
+    # Xup = 0.3015
+    # Yup = 0.0599
+    # YXXup = -0.4360
+    # Xlow = 0.2996
+    # Ylow = -0.06
+    # YXXlow = 0.4406
+    # yTE = 0
+    # deltaYTE = 0
+    # alphaTE = 0
+    # betaTE = 14.67
+
+    rLE = 0.009654531986877962
+    Xup = 0.4249518424218511
+    Yup = 0.1290731772876015
+    YXXup = -0.8545158284064833
+    Xlow = 0.2539204190664621
+    Ylow = -0.020532763652804015
+    YXXlow = 0.17317454220964454
+    yTE = -0.003924212537712704
+    deltaYTE = 0.0031883372076706197
+    alphaTE = 9.551321579179335
+    betaTE = 12.33143929455835
+    
 
     # Call the function to plot the airfoil coordinates
     plot_airfoil(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE)
