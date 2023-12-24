@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QLabel, QComboBox, QCheckBox, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, \
-    QGridLayout, QPushButton, QFileDialog
+    QGridLayout, QPushButton, QFileDialog, QInputDialog
 from PySide6.QtCharts import QLineSeries, QChart, QChartView,QXYSeries
 from PySide6.QtGui import QPainter
 from PySide6.QtCore import QPointF, Slot,QObject, Signal
@@ -186,10 +186,22 @@ class ChartWindow(QMainWindow):
     @Slot(int)
     def _set_reynold(self, index: int):
         print("optimizer has to be wrapped around a class to add the reynold feature")
+        # Get Reynolds number from user input
+        reynold = self._reynold_combobox.itemData(index)
+        print(f"Reynold Number set to: {reynold}")
+        # Write Reynolds number to a file
+        with open('./RESULTS/Reynold_and_Mach_Inputs/REYNOLD.txt', 'w') as reynold_file:
+            reynold_file.write(f'REYNOLD = {reynold}')
 
     @Slot(int)
     def _set_mach(self, index: int):
             print("optimizer has to be wrapped around a class to add the mach feature")
+            # Get Mach number from user input
+            mach = self._mach_combobox.itemData(index)
+            print(f"Mach Number set to: {mach}")
+            # Write Mach number to a file
+            with open('./RESULTS/Reynold_and_Mach_Inputs/MACH.txt', 'w') as mach_file:
+                mach_file.write(f'MACH = {mach}')
 
     @Slot()
     def _set_custom_label(self):
@@ -245,7 +257,6 @@ class ChartWindow(QMainWindow):
         optimization_cycle_file_path = os.path.join('./RESULTS/CurrentOptimizationCycle/', optimization_cycle_file_name)
 
 
-
         folder_path = "./RESULTS/Experiment1"
         files = os.listdir(folder_path)
         text_files = [file for file in files if file.endswith(".txt")]
@@ -279,7 +290,7 @@ class ChartWindow(QMainWindow):
             fitness_value = float(fitness_match.group(1))
         print('\n\nGen Number: '+str(generation_number) +' , Fitness Value: '+str(fitness_value)+'\n\n')
 
-
+        ## Getting the list of cl_cd ratios
         lines_list = content.split('\n')
         genotype_details_set_index = lines_list.index('Detailed Results for Each Genotype:')
 
