@@ -1,10 +1,14 @@
 import tensorflow as tf
 import joblib
+import pickle
 
-min_max_scaler = joblib.load('./min_max_scaler.pkl')
+
 
 # Define Constants
-DRAG_MODEL = tf.keras.models.load_model('./model.h5')
+DRAG_MODEL = tf.keras.models.load_model('best_model15.h5')
+with open("best_scaler15.obj", "rb") as f:
+    MIN_MAX_SCALER = pickle.load(f)
+
 REYNOLDS_NUMBER = 100000
 MACH_NUMBER = 0.1
 ATTACK_ON_ANGLE = -10
@@ -12,12 +16,18 @@ ATTACK_ON_ANGLE = -10
 
 def test_model_inference_func() -> float: 
     
-    yCoorUpper = [0.016659, 0.024604, 0.021796, 0.012770, 0.003794]
-    yCoorLower = [-0.016659, -0.024604, -0.021796, -0.012770, -0.003794]
+    yCoorUpper = [2.07692721e-02,  3.93104182e-02,  5.46992442e-02,
+        6.60399430e-02,  7.26857201e-02,  7.44701301e-02,  7.17682176e-02,
+        6.53878200e-02,  5.63418071e-02,  4.57425800e-02,  3.45854691e-02,
+        2.37791669e-02,  1.41758894e-02,  6.57918271e-03,  1.68970028e-03]
+    yCoorLower = [-2.07692721e-02, -3.93104182e-02, -5.46992442e-02, -6.60399430e-02,
+       -7.26857201e-02, -7.44701301e-02, -7.17682176e-02, -6.53878100e-02,
+       -5.63418071e-02, -4.57425800e-02, -3.45854691e-02, -2.37791669e-02,
+       -1.41758894e-02, -6.57918271e-03, -1.68970028e-03]
 
     features = [yCoorUpper + yCoorLower + [REYNOLDS_NUMBER, MACH_NUMBER, ATTACK_ON_ANGLE]]
     
-    features = min_max_scaler.transform(features)
+    features = MIN_MAX_SCALER.transform(features)
     
     features = tf.convert_to_tensor(features, dtype=tf.float32)
 

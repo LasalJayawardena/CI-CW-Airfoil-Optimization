@@ -1,13 +1,15 @@
 import os
 import joblib
+import pickle
 import numpy as np
 import tensorflow as tf
 
 from airfoil_Builder import Airfoil_Builder
 
 # Define Constants
-DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/model15.h5')
-MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/min_max_scaler_15point.pkl')
+DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/best_model15.h5')
+with open("./FITNESS_MODEL/best_scaler15.obj", "rb") as f:
+    MIN_MAX_SCALER = pickle.load(f)
 REYNOLDS_NUMBER = 20000
 MACH_NUMBER = 1
 ATTACK_ON_ANGLE = 5
@@ -65,12 +67,13 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
 
 
 # # Test Fitnes Function
-# from genotype import generate_random_genotype
+from genotype import generate_random_genotype
 
 # genotype = generate_random_genotype()
-# print(genotype)
+genotype = [0.0085, 0.46, 0.13, -0.7, 0.26, -0.023, 0.05, -0.003, 0.0025, 7.0, 10.932998125881275]
+print(genotype)
 
-# print(lift_coef_based_fitness_function(genotype))
+print(lift_coef_based_fitness_function(genotype))
 
 def lift_coef_based_fitness_function_multi(genotypes: list, angle_range: tuple = (-10, 10), return_full_dict: bool = False) -> list:
     """

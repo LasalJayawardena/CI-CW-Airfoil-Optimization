@@ -121,12 +121,12 @@ def simulation_strategy_one():
     # Run optimization_strategy_one for 100 Generations
 
     # Generate initial population
-    initial_population = generate_population(10)
+    initial_population = generate_population(50)
 
     # Run optimization_strategy_one for 100 generations
     current_generation = initial_population
-    for i in tqdm(list(range(2))):
-        current_generation = optimization_strategy_one(current_generation, 10)
+    for i in tqdm(list(range(25))):
+        current_generation = optimization_strategy_one(current_generation, 50)
         log_genration_results(current_generation, i+1)
 
     # Evaluate fitness of final generation
