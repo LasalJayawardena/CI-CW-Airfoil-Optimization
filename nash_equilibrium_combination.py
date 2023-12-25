@@ -3,12 +3,13 @@ from tqdm import tqdm
 import random
 import pickle
 
-# from fitness import lift_coef_based_fitness_function, lift_coef_based_fitness_function_multi
-# from genotype import generate_population
-# from selection import tournament_selection
-# from mutation import gaussian_mutation, uniform_mutation, creep_mutation
-# from crossover import single_point_crossover, uniform_crossover, arithmetic_crossover
-# import survivor_selection
+from fitness import lift_coef_based_fitness_function, lift_coef_based_fitness_function_multi
+from genotype import generate_population
+from selection import tournament_selection
+from mutation import gaussian_mutation, uniform_mutation, creep_mutation
+from crossover import single_point_crossover, uniform_crossover, arithmetic_crossover
+import survivor_selection
+from nash_loggers import nash_result_logger
 import itertools
 
 configurations = {
@@ -18,8 +19,8 @@ configurations = {
         "Arithmetic Crossover": lambda parent1, parent2: arithmetic_crossover(parent1=parent1, parent2=parent2, alpha=0.4)
     },
     "mutation_rate":{
-        "1 Percent": 0.01,
-        # "5 Percent": 0.05,
+        # "1 Percent": 0.01,
+        "5 Percent": 0.05,
         # "10 Percent": 0.1,
     },
     "mutation": {
@@ -52,12 +53,15 @@ def generate_experiment_combinations(configurations):
 
         # Adding the setting (functions/parameters) for each combination
         experiment_settings.append(combination)
-
+    
+    experiment_settings = [[sub_tuple[1] for sub_tuple in tuple_] for tuple_ in experiment_settings]
     return experiment_names, experiment_settings
 
-experiment_names, experiment_settings = generate_experiment_combinations(configurations)
-print(experiment_names)
-print(len(experiment_names))
+experiment_names, experiment_functions = generate_experiment_combinations(configurations)
+# print(experiment_names)
+# print("Number of Experiemnts", len(experiment_names))
+short_experiment_names = [ f"Nash_Combination_Experiment_{name}" for name in range(1, len(experiment_names)+1)]
+
 
 
 # Main Dictionary to keep track fo genotypes of nash fitness for each population
@@ -241,7 +245,7 @@ def co_evolution(population_u: List[list], population_v: List[list], fitness_sco
             population_v.pop(0)
 
 
-def check_nash_equilibrium(population_u: List[list], population_v: List[list], stored_fitness_dict: dict = FITNESS_DICT, convergence_threshold: float = 0.01, mutation_method: Callable = configurations["mutation"]["Gaussian Mutation"]) -> bool:
+def check_nash_equilibrium(population_u: List[list], population_v: List[list], stored_fitness_dict: dict = FITNESS_DICT, convergence_threshold: float = 0.01, mutation_method_u: Callable = configurations["mutation"]["Gaussian Mutation"], mutation_method_v: Callable = configurations["mutation"]["Gaussian Mutation"]) -> bool:
     """
     Check if two populations are at Nash Equilibrium.
 
@@ -260,7 +264,10 @@ def check_nash_equilibrium(population_u: List[list], population_v: List[list], s
 
             # Test mutations to see if any could increase the fitness significantly
             for _ in range(10):  # Check multiple mutations
-                mutated_individual = mutation_method(individual, 0.5)
+                if population_type == "u":
+                    mutated_individual = mutation_method_u(individual, 0.5)
+                else:
+                    mutated_individual = mutation_method_v(individual, 0.5)
                 mutated_fitness = nash_fitness_function(mutated_individual, population_type, stored_fitness_dict)
 
                 # Calculate fitness difference considering only positive improvements
@@ -285,67 +292,46 @@ def save_fitness_dict(fitness_dict: dict, filename: str) -> None:
         pickle.dump(fitness_dict, f)
 
 
-# Assume previously defined modules and methods are imported here.
-def nash_genetic_algorithm(population_size: int, max_generations: int, convergence_threshold: float) -> Tuple[List[list], List[list]]:
+def log_nash_generation_results(generation_u, generation_v, generation_number, experiment_name, root_folder="./RESULTS"):
     """
-    Executes the Nash genetic algorithm to find the Nash Equilibrium in airfoil optimization.
+    Logs the results of a generation to a text file.
 
-    Args:
-    - population_size (int): Size of each population.
-    - max_generations (int): Maximum number of generations.
-    - convergence_threshold (float): Convergence threshold to determine if Nash Equilibrium is reached.
-
-    Returns:
-    - Tuple[List[list], List[list]]: The two populations at Nash Equilibrium.
+    Parameters:
+    - generation_u (List[List[float]]): The generation of genotypes for population u.
+    - generation_v (List[List[float]]): The generation of genotypes for population v.
+    - generation_number (int): The generation number.
+    - experiment_name (str): The name of the experiment.
+    - root_folder (str): The root folder where results will be saved.
     """
-    # Step 1: Initialize populations U and V (Block 1 in the diagram)
-    population_u = generate_population(population_size)
-    population_v = generate_population(population_size)
+    exp_name = experiment_name.replace(" ", "_").replace("+", "and")  
 
-    for generation in tqdm(range(max_generations)):
-        # Step 2: Perform tournament selection (Block 2 in the diagram)
-        selected_u = tournament_selection(population_u, population_size, tournament_size=2, fitness_function = multi_u_fitness)
-        selected_v = tournament_selection(population_v, population_size, tournament_size=2, fitness_function = multi_v_fitness)
+    # root_folder, experiment_name: generation_number: generation_type genotypes
+    # base_fitness_values: list, adjusted_fitness_values: list, results_dicts: list
 
-        # Step 3: Apply crossover and mutation (Blocks 3.1 and 3.2 in the diagram)
-        parents_u = parent_selection(selected_u, population_size)
-        parents_v = parent_selection(selected_v, population_size)
+    # Log Population U
+    generation_type_u = "u"
+    fitness_values_u = lift_coef_based_fitness_function_multi(generation_u, return_full_dict=True)
+    adjusted_fitness_values_u = multi_u_fitness(generation_u)
+    base_fitness_values_u = [x[0] for x in fitness_values_u]
+    results_dicts_u = [x[1] for x in fitness_values_u]
 
-        offspring_u = [single_point_crossover(parent1, parent2)[0] for parent1, parent2 in parents_u]
-        offspring_v = [single_point_crossover(parent1, parent2)[0] for parent1, parent2 in parents_v]
+    nash_result_logger(root_folder, exp_name, generation_number, "u", generation_u,\
+    base_fitness_values_u, adjusted_fitness_values_u, results_dicts_u)
 
-        # Apply mutation to the offspring
-        mutated_offspring_u = [gaussian_mutation(individual, mutation_rate=0.1, std_dev=1.0) for individual in offspring_u]
-        mutated_offspring_v = [gaussian_mutation(individual, mutation_rate=0.1, std_dev=1.0) for individual in offspring_v]
+    # print(f"Generation {generation_number}, Population {generation_type_u} results logged for experiment '{experiment_name}' in folder '{root_folder}'.")
 
-        # Step 4: Co-evolution (Block 4 in the diagram)
-        co_evolution(mutated_offspring_u, mutated_offspring_v, scaling_factor=0.1, use_fitness_ordering=False, fitness_scores=FITNESS_DICT)
+    # Log Population V
+    generation_type_v = "v"
+    fitness_values_v = lift_coef_based_fitness_function_multi(generation_v, return_full_dict=True)
+    adjusted_fitness_values_v = multi_v_fitness(generation_v)
+    base_fitness_values_v = [x[0] for x in fitness_values_v]
+    results_dicts_v = [x[1] for x in fitness_values_v]
 
-        # Step 5: Evaluate populations (Block 5 in the diagram)
-        fitness_u = multi_u_fitness(mutated_offspring_u, stored_fitness_dict=FITNESS_DICT)
-        fitness_v = multi_v_fitness(mutated_offspring_v, stored_fitness_dict=FITNESS_DICT)
+    nash_result_logger(root_folder, exp_name, generation_number, "v", generation_v,\
+    base_fitness_values_v, adjusted_fitness_values_v, results_dicts_v)
 
-        # Step 6: Check for Nash Equilibrium (Block 6 in the diagram)
-        if check_nash_equilibrium(population_u=mutated_offspring_u, population_v=mutated_offspring_v, convergence_threshold= convergence_threshold):
-            print(f"Nash Equilibrium reached at generation:{generation}.")
-            # Order the Genotypes according to fitness values
-            mutated_offspring_u = sorted(mutated_offspring_u, key=lambda ind: single_u_fitness(ind), reverse=True)
-            mutated_offspring_v = sorted(mutated_offspring_v, key=lambda ind: single_v_fitness(ind), reverse=True)
-            return mutated_offspring_u, mutated_offspring_v
-
-        # If not at Nash Equilibrium, prepare for the next generation
-        population_u = mutated_offspring_u
-        population_v = mutated_offspring_v
-
-
-        
-    # Step 7: Check if generation tolerance limit is reached (Block 7 in the diagram)
-    print("Maximum generations reached without finding Nash Equilibrium.")
-    # Order the Genotypes according to fitness values
-    population_u = sorted(population_u, key=lambda ind: single_u_fitness(ind), reverse=True)
-    population_v = sorted(population_v, key=lambda ind: single_v_fitness(ind), reverse=True)
-    return population_u, population_v
-
+    # print(f"Generation {generation_number}, Population {generation_type_v} results logged for experiment '{experiment_name}' in folder '{root_folder}'.")
+    print(f"Generation {generation_number} results logged for experiment '{experiment_name}' in folder '{root_folder}'.")
 
 def run_nash_generation(population_u, population_v, population_size, FITNESS_DICT, convergence_threshold, crossover_method_u, crossover_method_v, mutation_rate_u, mutation_rate_v, mutation_method_u, mutation_method_v):
     """
@@ -383,7 +369,7 @@ def run_nash_generation(population_u, population_v, population_size, FITNESS_DIC
     fitness_v = multi_v_fitness(mutated_offspring_v, stored_fitness_dict=FITNESS_DICT)
 
     # Check for Nash Equilibrium
-    nash_equilibrium_reached = check_nash_equilibrium(population_u=mutated_offspring_u, population_v=mutated_offspring_v, convergence_threshold=convergence_threshold)
+    nash_equilibrium_reached = check_nash_equilibrium(population_u=mutated_offspring_u, population_v=mutated_offspring_v, convergence_threshold= convergence_threshold, mutation_method_u=mutation_method_u, mutation_method_v=mutation_method_v)
 
     return mutated_offspring_u, mutated_offspring_v, nash_equilibrium_reached
 
@@ -392,8 +378,13 @@ def nash_simulation(experiemnt_name:str, experiment_variables:List, population_s
     population_u = generate_population(population_size)
     population_v = generate_population(population_size)
 
+    crossover_method_u, crossover_method_v, mutation_rate_u, mutation_rate_v, mutation_method_u, mutation_method_v = experiment_variables
+
     for generation in tqdm(range(max_generations)):
-        mutated_offspring_u, mutated_offspring_v, nash_equilibrium_reached = run_generation(population_u, population_v, population_size, FITNESS_DICT, convergence_threshold)
+        mutated_offspring_u, mutated_offspring_v, nash_equilibrium_reached = run_nash_generation(population_u, population_v, population_size, FITNESS_DICT, convergence_threshold, crossover_method_u, crossover_method_v, mutation_rate_u, mutation_rate_v, mutation_method_u, mutation_method_v)
+
+        #  Log results for Generation
+        log_nash_generation_results(mutated_offspring_u, mutated_offspring_v, generation + 1, experiemnt_name)
 
         if nash_equilibrium_reached:
             print(f"Nash Equilibrium reached at generation:{generation}.")
@@ -408,61 +399,32 @@ def nash_simulation(experiemnt_name:str, experiment_variables:List, population_s
     return mutated_offspring_u, mutated_offspring_v
 
 
-
-
-
-# # Example usage
+# experiemnt_num = 0
+# experiment_name = short_experiment_names[experiemnt_num]
+# long_experiment_name = experiment_names[experiemnt_num]
+# experiment_variables = experiment_functions[experiemnt_num]
 # population_size = 50
-# max_generations = 10
+# max_generations = 100
 # convergence_threshold = 0.02
-# nash_population_u, nash_population_v = nash_genetic_algorithm(population_size, max_generations, convergence_threshold)
 
-# save_fitness_dict(FITNESS_DICT, "./RESULTS/Nash/fitness_dict.pkl")
+# print(experiment_variables, flush=True)
 
-# # # Output the Nash Equilibrium populations
-# # print("Nash Equilibrium population U:")
-# # for genotype in nash_population_u:
-# #     print(genotype)
+# print(f"Test run for ", long_experiment_name)
+# nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
 
-# # print("Nash Equilibrium population V:")
-# # for genotype in nash_population_v:
-# #     print(genotype)
+print("Running Experiments", len(experiment_names))
+start_index = 0
+end_index = 20
+population_size = 50
+max_generations = 100
+convergence_threshold = 0.02
+for experiment_name, long_experiment_name, experiment_variables in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
+    print(f"Running Experiment Name: {long_experiment_name}", flush=True)
+    nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
 
-# # Output Top 5 Genotypes of each population along with normal fitness values, and the FITNESS_DICT fitness values
-
-# genotypes_u = nash_population_u
-
-# # Generate genotypes of population V
-# genotypes_v = nash_population_v
-
-# # Calculate normal fitness values for population U
-# fitness_values_u = lift_coef_based_fitness_function_multi(genotypes_u)
-
-# # Calculate normal fitness values for population V
-# fitness_values_v = lift_coef_based_fitness_function_multi(genotypes_v)
-
-# # Calculate FITNESS_DICT fitness values for population U
-# fitness_dict_values_u = [single_u_fitness(genotype) for genotype in genotypes_u]
-
-# # Calculate FITNESS_DICT fitness values for population V
-# fitness_dict_values_v = [single_v_fitness(genotype) for genotype in genotypes_v]
-
-# # Print genotypes and fitness values
-# print("Population U:")
-# for genotype, fitness, dict_fitness in list(zip(genotypes_u, fitness_values_u, fitness_dict_values_u))[:5]:
-#     print("Genotype:", genotype)
-#     print("Normal Fitness:", fitness)
-#     print("FITNESS_DICT Fitness:", dict_fitness)
-
-# print("Population V:")
-# for genotype, fitness, dict_fitness in list(zip(genotypes_v, fitness_values_v, fitness_dict_values_v))[:5]:
-#     print("Genotype:", genotype)
-#     print("Normal Fitness:", fitness)
-#     print("FITNESS_DICT Fitness:", dict_fitness)
-
-
-
-
+    # Grabeg Collect to Free Reources
+    import gc
+    gc.collect()
 
 
 

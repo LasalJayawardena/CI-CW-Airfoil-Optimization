@@ -1,7 +1,7 @@
 import os
 import datetime
 
-def result_logger(root_folder: str, experiment_name: str, generation_number: int, generation_type: str, genotypes: list, base_fitness_values: list, adjusted_fitness_values: list, results_dicts: list):
+def nash_result_logger(root_folder: str, experiment_name: str, generation_number: int, generation_type: str, genotypes: list, base_fitness_values: list, adjusted_fitness_values: list, results_dicts: list):
     """
     Logs the results of an experiment in a text file.
 
@@ -47,7 +47,7 @@ def result_logger(root_folder: str, experiment_name: str, generation_number: int
 # Example usage:
 # result_logger('path/to/root_folder', 'Experiment1', 1, [[genotype1], [genotype2]], [fitness1, fitness2], [{angle1: (cl1, cd1, cm1)}, {angle2: (cl2, cd2, cm2)}])
 
-def read_experiment_results(file_path: str):
+def read_nash_experiment_results(file_path: str):
     """
     Reads the experiment results from a text file and extracts genotypes, fitness values, and detailed results.
 
