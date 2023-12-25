@@ -1,0 +1,5 @@
+crossover: Single Point Crossover
+mutation_rate: 0.5
+mutation: Gaussian Mutation
+selection: Rank Selection
+survivor_selection: Steady State Selection
