@@ -117,13 +117,13 @@ def truncation_selection(population, num_selected, fitness_function):
 # for ind in selected_individuals:
 #     print(ind)
 
-def elitism_selection(population, num_elites, fitness_function):
+def elitism_selection(population, num_selected, fitness_function):
     """
     Select the top individuals from the population based on their fitness scores.
     
     Args:
     - population (list): The population of individuals.
-    - num_elites (int): The number of top individuals to select.
+    - num_selected (int): The number of top individuals to select.
     - fitness_function (function): The function to calculate fitness scores.
     
     Returns:
@@ -138,8 +138,8 @@ def elitism_selection(population, num_elites, fitness_function):
     # Sort the paired population by fitness score in descending order
     sorted_population = sorted(paired_population, key=lambda x: x[1], reverse=True)
     
-    # Select the top num_elites individuals
-    elites = [individual for individual, score in sorted_population[:num_elites]]
+    # Select the top num_selected individuals
+    elites = [individual for individual, score in sorted_population[:num_selected]]
     
     return elites
 
@@ -159,7 +159,7 @@ def elitism_selection(population, num_elites, fitness_function):
 
 
 
-def steady_state_selection(old_population, new_offspring, fitness_function, max_population_size, replacement_percentage):
+def steady_state_selection(old_population, new_offspring, fitness_function, num_selected, replacement_percentage):
     """
     Perform steady-state selection by replacing a percentage of the worst-performing individuals
     in the old population with new offspring.
@@ -168,7 +168,7 @@ def steady_state_selection(old_population, new_offspring, fitness_function, max_
     - old_population (list): The current population of individuals.
     - new_offspring (list): The newly generated offspring.
     - fitness_function (function): A function that calculates the fitness of an individual.
-    - max_population_size (int): The maximum allowed size of the population.
+    - num_selected (int): The maximum allowed size of the population.
     - replacement_percentage (float): The percentage of the population to be replaced by new offspring.
     
     Returns:
@@ -184,7 +184,7 @@ def steady_state_selection(old_population, new_offspring, fitness_function, max_
     paired_population.sort(key=lambda x: x[1])
     
     # Determine the number of individuals to replace
-    num_to_replace = int(replacement_percentage * max_population_size)
+    num_to_replace = int(replacement_percentage * num_selected)
     
     # Replace the worst-performing individuals with new offspring
     for i in range(num_to_replace):
@@ -197,8 +197,8 @@ def steady_state_selection(old_population, new_offspring, fitness_function, max_
         paired_population.extend([(offspring, fitness_function(offspring)) for offspring in extra_offspring])
     
     # Ensure the population does not exceed the maximum size
-    if len(paired_population) > max_population_size:
-        paired_population = paired_population[:max_population_size]
+    if len(paired_population) > num_selected:
+        paired_population = paired_population[:num_selected]
     
     # Unpair the population to get the new list of individuals
     new_population = [individual for individual, score in paired_population]

@@ -178,13 +178,13 @@ def stochastic_universal_sampling(population, num_selected, fitness_function):
 #     print(ind)
 
 
-def elitism_selection(population, num_elites, fitness_function):
+def elitism_selection(population, num_selected, fitness_function):
     """
     Select the top individuals from the population based on their fitness scores.
     
     Args:
     - population (list): The population of individuals.
-    - num_elites (int): The number of top individuals to select.
+    - num_selected (int): The number of top individuals to select.
     - fitness_function (function): The function to calculate fitness scores.
     
     Returns:
@@ -199,8 +199,8 @@ def elitism_selection(population, num_elites, fitness_function):
     # Sort the paired population by fitness score in descending order
     sorted_population = sorted(paired_population, key=lambda x: x[1], reverse=True)
     
-    # Select the top num_elites individuals
-    elites = [individual for individual, score in sorted_population[:num_elites]]
+    # Select the top num_selected individuals
+    elites = [individual for individual, score in sorted_population[:num_selected]]
     
     return elites
 

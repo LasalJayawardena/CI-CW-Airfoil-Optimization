@@ -37,13 +37,13 @@ def random_resetting_mutation(individual: List[float], mutation_rate: float) -> 
 
 
 
-def creep_mutation(individual: List[float], creep_rate: float, creep_magnitude: float) -> List[float]:
+def creep_mutation(individual: List[float], mutation_rate: float, creep_magnitude: float) -> List[float]:
     """
     Perform creep mutation on an individual.
     
     Args:
     - individual (List[float]): The individual genotype to mutate.
-    - creep_rate (float): The probability of mutation for each gene.
+    - mutation_rate (float): The probability of mutation for each gene. AKA Creep Rate
     - creep_magnitude (float): The magnitude of the creep mutation.
     
     Returns:
@@ -52,7 +52,7 @@ def creep_mutation(individual: List[float], creep_rate: float, creep_magnitude: 
     # Perform creep mutation based on the creep rate
     mutated_individual = individual[:]
     for i in range(len(mutated_individual)):
-        if random.random() < creep_rate:
+        if random.random() < mutation_rate:
             delta = random.uniform(-creep_magnitude, creep_magnitude)
             mutated_value = mutated_individual[i] + delta
             # Ensure the mutated value stays within bounds

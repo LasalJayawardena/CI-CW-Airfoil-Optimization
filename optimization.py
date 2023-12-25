@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from genotype import generate_population, check_valid_genotype
 from crossover import uniform_crossover
 from fitness import lift_coef_based_fitness_function_multi, lift_coef_based_fitness_function
@@ -97,8 +99,6 @@ def optimization_strategy_one(current_gen: List[List[float]], population_size: i
 # result = optimization_strategy_one(generate_population(10), 20)
 # print(result[0], len(result))
 
-from tqdm import tqdm
-
 def log_genration_results(generation: List[List[float]], generation_number: int):
     """
     Logs the results of a generation to a text file.
@@ -134,10 +134,10 @@ def simulation_strategy_one():
     return current_generation, fitness_scores
 
 # Test simulation_strategy_one
-final_generation, fitness_scores = simulation_strategy_one()
-print(fitness_scores)
-print(final_generation[fitness_scores.index(max(fitness_scores))][:5])
+# final_generation, fitness_scores = simulation_strategy_one()
+# print(fitness_scores)
+# print(final_generation[fitness_scores.index(max(fitness_scores))][:5])
 
-print(final_generation[:5])
+# print(final_generation[:5])
 
 # [[0.022028398172698832, 0.014909972469847377, 0.19131302277026258, -0.03145004697386025, 0.348600346393238, -0.11270809714274087, 0.019478974011888583, -0.09137591307596914, 0.001051826118050081, 358.57716542057204, 243.7584605017981], [0.009184781744351635, 0.014909972469847377, 0.1668981036767055, -0.05174832623838861, 0.2652554774311876, -0.11270809714274087, -0.08082863268240983, 0.046632160153082886, 0.001051826118050081, 358.57716542057204, 160.91629829169645], [0.014071653932302846, 0.014909972469847377, 0.1668981036767055, 0.012927437061695121, 0.19069779518561036, -0.1934743008979389, -0.08082863268240983, 0.06570611638799778, 0.001051826118050081, 268.5672836290555, 160.91629829169645], [0.014071653932302846, 0.014909972469847377, 0.1668981036767055, 0.012927437061695121, 0.19069779518561036, -0.1934743008979389, -0.08082863268240983, -0.09137591307596914, 0.001051826118050081, 268.5672836290555, 282.5659800093517], [0.014071653932302846, 0.014909972469847377, 0.1668981036767055, 0.07129968424638725, 0.4134505039093871, 0.137912988943254, -0.08082863268240983, -0.0527572320351819, 0.001051826118050081, 358.57716542057204, 160.91629829169645]]
