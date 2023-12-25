@@ -352,7 +352,7 @@ def nash_genetic_algorithm(population_size: int, max_generations: int, convergen
 
 # Example usage
 population_size = 50
-max_generations = 100
+max_generations = 10
 convergence_threshold = 0.02
 nash_population_u, nash_population_v = nash_genetic_algorithm(population_size, max_generations, convergence_threshold)
 

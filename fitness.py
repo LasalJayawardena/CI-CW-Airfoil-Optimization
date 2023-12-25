@@ -66,14 +66,15 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
         return avg_cl_cd
 
 
-# # Test Fitnes Function
-from genotype import generate_random_genotype
+# # # Test Fitnes Function
+# from genotype import generate_random_genotype
 
 # genotype = generate_random_genotype()
-genotype = [0.0085, 0.46, 0.13, -0.7, 0.26, -0.023, 0.05, -0.003, 0.0025, 7.0, 10.932998125881275]
-print(genotype)
+# # genotype = [0.01, 0.46, 0.13, -0.7, 0.26, -0.023, 0.05, -0.003, 0.0025, 7.0, 10]
+# print(genotype)
+# print(genotype)
 
-print(lift_coef_based_fitness_function(genotype))
+# print(lift_coef_based_fitness_function(genotype))
 
 def lift_coef_based_fitness_function_multi(genotypes: list, angle_range: tuple = (-10, 10), return_full_dict: bool = False) -> list:
     """
