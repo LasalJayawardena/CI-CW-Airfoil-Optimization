@@ -103,8 +103,8 @@ def read_experiment_results(file_path: str):
 
     return genotypes, fitness_values, detailed_results
 
-# Example usage:
-# genotypes, fitness_values, detailed_results = read_experiment_results("./RESULTS/Experiment1/Results_Gen_1_20231214_110126.txt")
+# # Example usage:
+# genotypes, fitness_values, detailed_results = read_experiment_results("./RESULTS/Combination_Experiment_1/Results_Gen_100_20231225_150840.txt")
 # print(genotypes)
 # print(fitness_values)
 # print(detailed_results)
