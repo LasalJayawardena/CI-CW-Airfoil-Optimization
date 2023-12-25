@@ -128,7 +128,6 @@ def parent_selection(gene_list: List[List[float]], number_of_pairs: int) -> List
 
 
 #  Flexible Optimzier Algorithm
-
 def flexible_optimizer(current_gen, population_size, crossover_method, mutation_rate, mutation_method, selection_method, survivor_selection_method):
     """
     Performs one generation of a genetic algorithm using flexible strategies.
