@@ -170,8 +170,11 @@ def flexible_optimizer(current_gen, population_size, crossover_method, mutation_
     # Perform mutation
     mutated_population = [mutation_method(genotype, mutation_rate) for genotype in crossover_population]
 
+    # Only keep valid genotypes
+    mutated_population = [genotype for genotype in mutated_population if check_valid_genotype(genotype)]
+
     
-    # For Non Steady StaeCombine and select survivors
+    # For Non Steady State Combine and select survivors
     if not is_steady_state:
         combined_generations = current_gen + mutated_population
         final_generation = survivor_selection_method(combined_generations, population_size, lift_coef_based_fitness_function_multi)
