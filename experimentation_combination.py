@@ -145,7 +145,6 @@ def flexible_optimizer(current_gen, population_size, crossover_method, mutation_
     - List[List[float]]: The next generation of genotypes.
     """
     # Check if the survivor slection is setady state
-    print("Error here", flush=True)
     signature = inspect.signature(survivor_selection_method)
     is_steady_state = len(signature.parameters) == 4
 
