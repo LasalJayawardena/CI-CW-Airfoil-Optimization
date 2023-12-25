@@ -71,7 +71,14 @@ class ChartWindow(QMainWindow):
         self._airfoil_shape_graph_Widget.setLabel('left', 'Y')
 
         # Labels
-        fitness_parameters_label = QLabel("--------------------------")
+        advance_control_label = QLabel("advanced controls")
+        crossover_label = QLabel("Crossover : ")
+        mutation_rate_label = QLabel("Mutation rate : ")
+        mutation_label = QLabel("Mutation : ")
+        selection_label = QLabel("Selection : ")
+        survivor_selection_label = QLabel("Survivor selection : ")
+
+        fitness_parameters_label = QLabel("optimizer controls")
         reynold_label = QLabel("Reynold Number: ")
         mach_label = QLabel("Mach Number: ")
 
@@ -88,6 +95,12 @@ class ChartWindow(QMainWindow):
         betaTE_label = QLabel("betaTE: ")
 
         # properties
+        self._crossover_combobox = QComboBox()
+        self._mutation_rate_combobox = QComboBox()
+        self._mutation_combobox = QComboBox()
+        self._selection_combobox = QComboBox()
+        self._survivor_selection_combobox = QComboBox()
+
         self._reynold_combobox = QComboBox()
         self._mach_combobox = QComboBox()
         self._optimization_button = QPushButton("Optimize")
@@ -105,12 +118,21 @@ class ChartWindow(QMainWindow):
         self._alphaTE_lineedit = QLineEdit(str(self.alphaTE))
         self._betaTE_lineedit = QLineEdit(str(self.betaTE))
 
-        # self._chart = QChart()
-        # self._series = QLineSeries()
-        # self._series.setName("Airfoil")
-        # self._series.setPointsVisible(True)
-        # self._chart.addSeries(self._series)
-        # self._chart.createDefaultAxes()
+
+        for co in [ "Single Point Crossover", "Two Point Crossover",  "Uniform Crossover", "Blend Crossover", "Arithmetic Crossover"]:
+            self._crossover_combobox.addItem(str(co), co)
+
+        for mr in [0.01, 0.05, 0.10]:
+            self._mutation_rate_combobox.addItem(str(mr), mr)
+
+        for m in ["Creep Mutation", "Gaussian Mutation",  "Uniform Mutation"]:
+            self._mutation_combobox.addItem(str(m), m)
+
+        for s in ["Roulette Wheel Selection", "Binary Tournament Selection", "Ternary Tournament Selection", "Rank Selection", "Stochastic Universal Selection","Elitism Selection"]:
+            self._selection_combobox.addItem(str(s), s)
+
+        for ss in ["Truncation Survivor Selection", "Steady State Selection"]:
+            self._survivor_selection_combobox.addItem(str(ss), ss)
 
         for re in [100000, 200000, 300000, 400000, 500000]:
             self._reynold_combobox.addItem(str(re), re)
@@ -119,6 +141,12 @@ class ChartWindow(QMainWindow):
             self._mach_combobox.addItem(str(mach), mach)
 
         # connections
+        self._crossover_combobox.activated.connect(self._set_crossover)
+        self._mutation_rate_combobox.activated.connect(self._set_mutation_rate)
+        self._mutation_combobox.activated.connect(self._set_mutation)
+        self._selection_combobox.activated.connect(self._set_selection)
+        self._survivor_selection_combobox.activated.connect(self._set_survivor_selection)
+
         self._reynold_combobox.activated.connect(self._set_reynold)
         self._mach_combobox.activated.connect(self._set_mach)
 
@@ -175,14 +203,26 @@ class ChartWindow(QMainWindow):
         optimize_control_layout = QGridLayout(optimize_control_widget)
         optimize_control_layout.setColumnStretch(0, 1)
 
-        optimize_control_layout.addWidget(fitness_parameters_label, 12, 0)
-        optimize_control_layout.addWidget(reynold_label, 13, 0)
-        optimize_control_layout.addWidget(self._reynold_combobox, 13, 1)
-        optimize_control_layout.addWidget(mach_label, 14, 0)
-        optimize_control_layout.addWidget(self._mach_combobox, 14, 1)
+        optimize_control_layout.addWidget(advance_control_label, 0, 0)
+        optimize_control_layout.addWidget(crossover_label, 1, 0)
+        optimize_control_layout.addWidget(self._crossover_combobox, 1, 1)
+        optimize_control_layout.addWidget(mutation_rate_label, 2, 0)
+        optimize_control_layout.addWidget(self._mutation_rate_combobox, 2, 1)
+        optimize_control_layout.addWidget(mutation_label, 3, 0)
+        optimize_control_layout.addWidget(self._mutation_combobox, 3, 1)
+        optimize_control_layout.addWidget(selection_label, 4, 0)
+        optimize_control_layout.addWidget(self._selection_combobox, 4, 1)
+        optimize_control_layout.addWidget(survivor_selection_label, 5, 0)
+        optimize_control_layout.addWidget(self._survivor_selection_combobox,5, 1)
 
-        optimize_control_layout.addWidget(self._optimization_button,15,0)
-        optimize_control_layout.addWidget(self._export_button,15,1)
+        optimize_control_layout.addWidget(fitness_parameters_label, 6, 0)
+        optimize_control_layout.addWidget(reynold_label, 7, 0)
+        optimize_control_layout.addWidget(self._reynold_combobox, 7, 1)
+        optimize_control_layout.addWidget(mach_label, 8, 0)
+        optimize_control_layout.addWidget(self._mach_combobox, 8, 1)
+
+        optimize_control_layout.addWidget(self._optimization_button,9,0)
+        optimize_control_layout.addWidget(self._export_button,9,1)
 
         parameter_widget = QWidget(self)
         parameter_layout = QGridLayout(parameter_widget)
@@ -201,10 +241,35 @@ class ChartWindow(QMainWindow):
         main_widget = QWidget(self)
         main_layout = QHBoxLayout(main_widget)
         main_layout.addWidget(airfoil_widget)
-        #main_layout.addWidget(control_widget)
         main_layout.addWidget(charts_widget)
         main_layout.setStretch(0, 1)
         self.setCentralWidget(main_widget)
+
+
+    @Slot(int)
+    def _set_crossover(self, index: int):
+        crossover = self._crossover_combobox.itemData(index)
+        print(crossover)
+
+    @Slot(int)
+    def _set_mutation_rate(self, index: int):
+        mutation_rate = self._mutation_rate_combobox.itemData(index)
+        print(mutation_rate)
+
+    @Slot(int)
+    def _set_mutation(self, index: int):
+        mutation = self._mutation_combobox.itemData(index)
+        print(mutation)
+
+    @Slot(int)
+    def _set_selection(self, index: int):
+        selection = self._selection_combobox.itemData(index)
+        print(selection)
+
+    @Slot(int)
+    def _set_survivor_selection(self, index: int):
+        survivor_selection = self._survivor_selection_combobox.itemData(index)
+        print(survivor_selection)
 
     @Slot(int)
     def _set_reynold(self, index: int):
@@ -257,7 +322,7 @@ class ChartWindow(QMainWindow):
         current_generation = initial_population
         optimization.log_genration_results(current_generation, 0)
         self.updateGeneration.emit()
-        for i in tqdm(list(range(20))):
+        for i in tqdm(list(range(50))):
             current_generation = optimization.optimization_strategy_one(current_generation, 10)
             optimization.log_genration_results(current_generation, i + 1)
             self.updateGeneration.emit()
