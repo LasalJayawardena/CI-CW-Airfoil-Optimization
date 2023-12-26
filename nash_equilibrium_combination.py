@@ -2,6 +2,7 @@ from typing import *
 from tqdm import tqdm
 import random
 import pickle
+import sys
 
 from fitness import lift_coef_based_fitness_function, lift_coef_based_fitness_function_multi
 from genotype import generate_population
@@ -61,8 +62,7 @@ experiment_names, experiment_functions = generate_experiment_combinations(config
 # print(experiment_names)
 # print("Number of Experiemnts", len(experiment_names))
 short_experiment_names = [ f"Nash_Combination_Experiment_{name}" for name in range(1, len(experiment_names)+1)]
-
-
+# print(experiment_names[:5])
 
 # Main Dictionary to keep track fo genotypes of nash fitness for each population
 FITNESS_DICT = {}
@@ -412,19 +412,47 @@ def nash_simulation(experiemnt_name:str, experiment_variables:List, population_s
 # print(f"Test run for ", long_experiment_name)
 # nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
 
-print("Running Experiments", len(experiment_names))
-start_index = 0
-end_index = 20
+# print("Running Experiments", len(experiment_names))
+# start_index = 0
+# end_index = 20
+# population_size = 50
+# max_generations = 100
+# convergence_threshold = 0.02
+# for experiment_name, long_experiment_name, experiment_variables in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
+#     print(f"Running Experiment Name: {long_experiment_name}", flush=True)
+#     nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
+
+#     # Grabeg Collect to Free Reources
+#     import gc
+#     gc.collect()
+
+# Default values
 population_size = 50
 max_generations = 100
 convergence_threshold = 0.02
-for experiment_name, long_experiment_name, experiment_variables in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
-    print(f"Running Experiment Name: {long_experiment_name}", flush=True)
-    nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
 
-    # Grabeg Collect to Free Reources
-    import gc
-    gc.collect()
+# Read experiment index from command line arguments
+if len(sys.argv) != 2:
+    print("Usage: python script_name.py <experiment_index>")
+    sys.exit(1)
+
+try:
+    experiment_index = int(sys.argv[1])
+except ValueError:
+    print("Please provide a valid integer for the experiment index.")
+    sys.exit(1)
+
+# Ensure experiment_index is within the valid range
+if experiment_index < 0 or experiment_index >= len(experiment_names):
+    print("Experiment index out of range.")
+    sys.exit(1)
+
+# Extract the specific experiment based on the provided index
+experiment_name, long_experiment_name, experiment_variables = short_experiment_names[experiment_index], experiment_names[experiment_index], experiment_functions[experiment_index]
+
+# Run the specific experiment
+print(f"Running Experiment Name: {long_experiment_name}", flush=True)
+nash_simulation(experiment_name, experiment_variables, population_size, max_generations, convergence_threshold)
 
 
 
