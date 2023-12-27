@@ -242,9 +242,9 @@ def flexible_simulation(experiment_name, experiment_variables, num_generations=1
 # print(f"Runnign for experiment: {long_experiment_name}")
 # flexible_simulation(experiment_name, experiment_variables, num_generations=100, population_size=50, root_folder="./RESULTS")
 
-print("Running Experiments", len(experiment_names))
-start_index = 23
-end_index = 50
-for name, long_name, funcs in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
-    print(f"Running Experiment Name: {long_name}", flush=True)
-    final_generation, fitness_scores = flexible_simulation(name, funcs, num_generations=100, population_size=50)
+# print("Running Experiments", len(experiment_names))
+# start_index = 23
+# end_index = 50
+# for name, long_name, funcs in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
+#     print(f"Running Experiment Name: {long_name}", flush=True)
+#     final_generation, fitness_scores = flexible_simulation(name, funcs, num_generations=100, population_size=50)

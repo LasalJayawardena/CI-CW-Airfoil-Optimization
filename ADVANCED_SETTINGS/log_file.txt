@@ -1,0 +1,5 @@
+crossover: Single Point Crossover
+mutation_rate: 1 Percent
+mutation: Creep Mutation
+selection: Roulette Wheel Selection
+survivor_selection: Truncation Survivor Selection
