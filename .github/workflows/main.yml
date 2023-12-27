@@ -35,6 +35,6 @@ jobs:
     - name: commit changed files
       run: git commit -m "Add files"
     - name: fetch from master
-      run: git fetch origin main
+      run: git fetch origin beta
     - name: push code to main
-      run: git push origin HEAD:main
+      run: git push origin HEAD:beta
