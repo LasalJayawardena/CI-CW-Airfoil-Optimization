@@ -24,7 +24,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: airfoil
-        path: /home/runner/work/actions-testing/actions-testing/dist/test
+        path: /home/runner/work/CI-CW-Airfoil-Optimization/CI-CW-Airfoil-Optimization/dist/main
     # - name: check for changes
     #   run: git status
     # - name: stage changed files
