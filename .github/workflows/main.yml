@@ -1,0 +1,40 @@
+name: Build Exe
+
+on:
+  push:
+    branches:
+      - beta
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller
+    - name: Build executable
+      run: pyinstaller main.spec
+    - name: Upload executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: airfoil
+        path: /home/runner/work/actions-testing/actions-testing/dist/test
+    # - name: check for changes
+    #   run: git status
+    # - name: stage changed files
+    #   run: |
+    #     git config --global user.email "malitha.randeniya.20200426@iit.ac.lk"
+    #     git config --global user.name "Malitha08"
+    #     git add .
+    # - name: commit changed files
+    #   run: git commit -m "Add files"
+    # - name: fetch from master
+    #   run: git fetch origin main
+    # - name: push code to main
+    #   run: git push origin HEAD:main
