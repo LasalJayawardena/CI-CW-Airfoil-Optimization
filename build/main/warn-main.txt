@@ -1,0 +1,35 @@
+
+This file lists modules PyInstaller was not able to find. This does not
+necessarily mean this module is required for running your program. Python and
+Python 3rd-party packages include a lot of conditional or optional modules. For
+example the module 'ntpath' only exists on Windows, whereas the module
+'posixpath' only exists on Posix systems.
+
+Types if import:
+* top-level: imported at the top-level - look at these first
+* conditional: imported within an if-statement
+* delayed: imported within a function
+* optional: imported within a try-except-statement
+
+IMPORTANT: Do NOT post this list to the issue-tracker. Use it as a basis for
+            tracking down the missing module yourself. Thanks!
+
+missing module named pep517 - imported by importlib.metadata (delayed)
+missing module named 'org.python' - imported by copy (optional)
+missing module named org - imported by pickle (optional)
+missing module named winreg - imported by importlib._bootstrap_external (conditional)
+missing module named nt - imported by shutil (conditional), importlib._bootstrap_external (conditional), ntpath (optional), pathlib (conditional), os (delayed, conditional, optional)
+missing module named _frozen_importlib_external - imported by importlib._bootstrap (delayed), importlib (optional), importlib.abc (optional)
+excluded module named _frozen_importlib - imported by importlib (optional), importlib.abc (optional)
+missing module named _winapi - imported by encodings (delayed, conditional, optional), subprocess (optional)
+missing module named msvcrt - imported by subprocess (optional)
+missing module named matplotlib - imported by /home/runner/work/CI-CW-Airfoil-Optimization/CI-CW-Airfoil-Optimization/main.py (top-level)
+missing module named tensorflow - imported by fitness (top-level)
+missing module named numpy - imported by math_Tools (top-level), airfoil_Builder (top-level), fitness (top-level)
+missing module named joblib - imported by fitness (top-level)
+missing module named tqdm - imported by ui (top-level), optimization (top-level), experimentation_combination (top-level)
+missing module named 'PySide6.QtWidgets' - imported by ui (top-level)
+missing module named 'PySide6.QtCore' - imported by ui (top-level)
+missing module named 'PySide6.QtCharts' - imported by ui (top-level)
+missing module named pyqtgraph - imported by ui (top-level)
+missing module named PySide6 - imported by /home/runner/work/CI-CW-Airfoil-Optimization/CI-CW-Airfoil-Optimization/main.py (top-level)

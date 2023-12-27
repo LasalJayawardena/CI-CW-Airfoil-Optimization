@@ -1,6 +1,5 @@
 import os
 import joblib
-import pickle
 import numpy as np
 import tensorflow as tf
 
@@ -8,8 +7,7 @@ from airfoil_Builder import Airfoil_Builder
 
 # Define Constants
 DRAG_MODEL = tf.keras.models.load_model('./FITNESS_MODEL/best_model15.h5')
-with open("./FITNESS_MODEL/best_scaler15.obj", "rb") as f:
-    MIN_MAX_SCALER = pickle.load(f)
+MIN_MAX_SCALER = joblib.load('./FITNESS_MODEL/best_scaler15.obj')
 REYNOLDS_NUMBER = 20000
 MACH_NUMBER = 1
 ATTACK_ON_ANGLE = 5
@@ -32,7 +30,7 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
     rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE = genotype
 
     # Create an airfoil object
-    airfoil = Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE)
+    airfoil = Airfoil_Builder(rLE, Xup, Yup, YXXup, Xlow, Ylow, YXXlow, yTE, deltaYTE, alphaTE, betaTE,15)
     airfoil.build()
     xcoor = airfoil.XCoordinates
     yCoorUpper = airfoil.YCoordinatesUpper
@@ -50,8 +48,8 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
     # Process the results
     results = {angle: tuple(pred) for angle, pred in zip(angles, predictions)}
     sum_cl, sum_cd = np.sum(predictions[:, 0]), np.sum(predictions[:, 1])
+    sum_cl_cd = np.sum(predictions[:, 0]) / np.sum(predictions[:, 1])
     angle_count = len(angles)
-
 
     # Calculate and return the average cl and cd
     avg_cl = sum_cl / angle_count
@@ -59,19 +57,22 @@ def lift_coef_based_fitness_function(genotype: list, angle_range: tuple = (-10, 
 
     avg_cl_cd = avg_cl / avg_cd
 
-    # Check if the full dictionary is to be returned
     if return_full_dict:
-        return avg_cl_cd, results
+        return sum_cl_cd, results
     else:
-        return avg_cl_cd
+        return sum_cl_cd
+
+    # Check if the full dictionary is to be returned
+    # if return_full_dict:
+    #     return avg_cl_cd, results
+    # else:
+    #     return avg_cl_cd
 
 
-# # # Test Fitnes Function
+# # Test Fitnes Function
 # from genotype import generate_random_genotype
 
 # genotype = generate_random_genotype()
-# # genotype = [0.01, 0.46, 0.13, -0.7, 0.26, -0.023, 0.05, -0.003, 0.0025, 7.0, 10]
-# print(genotype)
 # print(genotype)
 
 # print(lift_coef_based_fitness_function(genotype))

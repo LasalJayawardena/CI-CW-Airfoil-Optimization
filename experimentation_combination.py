@@ -128,7 +128,6 @@ def parent_selection(gene_list: List[List[float]], number_of_pairs: int) -> List
 
 
 #  Flexible Optimzier Algorithm
-
 def flexible_optimizer(current_gen, population_size, crossover_method, mutation_rate, mutation_method, selection_method, survivor_selection_method):
     """
     Performs one generation of a genetic algorithm using flexible strategies.
@@ -145,8 +144,7 @@ def flexible_optimizer(current_gen, population_size, crossover_method, mutation_
     Returns:
     - List[List[float]]: The next generation of genotypes.
     """
-    # Check if the survivor slection is setady state
-    print("Error here", flush=True)
+    # Check if the survivor selection is steady state
     signature = inspect.signature(survivor_selection_method)
     is_steady_state = len(signature.parameters) == 4
 
@@ -172,8 +170,11 @@ def flexible_optimizer(current_gen, population_size, crossover_method, mutation_
     # Perform mutation
     mutated_population = [mutation_method(genotype, mutation_rate) for genotype in crossover_population]
 
+    # Only keep valid genotypes
+    mutated_population = [genotype for genotype in mutated_population if check_valid_genotype(genotype)]
+
     
-    # For Non Steady StaeCombine and select survivors
+    # For Non Steady State Combine and select survivors
     if not is_steady_state:
         combined_generations = current_gen + mutated_population
         final_generation = survivor_selection_method(combined_generations, population_size, lift_coef_based_fitness_function_multi)
@@ -242,8 +243,8 @@ def flexible_simulation(experiment_name, experiment_variables, num_generations=1
 # flexible_simulation(experiment_name, experiment_variables, num_generations=100, population_size=50, root_folder="./RESULTS")
 
 # print("Running Experiments", len(experiment_names))
-start_index = 0
-end_index = 50
-for name, long_name, funcs in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
-    print(f"Running Experiment Name: {long_name}", flush=True)
-    final_generation, fitness_scores = flexible_simulation(name, funcs, num_generations=100, population_size=50)
+# start_index = 23
+# end_index = 50
+# for name, long_name, funcs in tqdm(list(zip(short_experiment_names, experiment_names, experiment_functions))[start_index:end_index]):
+#     print(f"Running Experiment Name: {long_name}", flush=True)
+#     final_generation, fitness_scores = flexible_simulation(name, funcs, num_generations=100, population_size=50)
