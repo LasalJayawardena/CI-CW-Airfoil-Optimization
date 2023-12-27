@@ -3,7 +3,7 @@ name: Build Exe
 on:
   push:
     branches:
-      - beta
+      - main
 
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: airfoil
-        path: /home/runner/work/actions-testing/actions-testing/dist/test
+        path: test/s.exe
     # - name: check for changes
     #   run: git status
     # - name: stage changed files
